@@ -1,0 +1,50 @@
+export const lesson = {
+  "title": "Follow a request to its handler",
+  "summary": "Trace a URL through the App Router and find the file that creates the response.",
+  "debugTitle": "The greeting endpoint returns the wrong lesson",
+  "debugScenario": "The API responds with JSON, but the lesson field is incorrect and the response message has been accidentally changed. Find the handler that owns GET /api/hello and correct the response.",
+  "debugTasks": [
+    "Open /api/hello and record the current response.",
+    "Find the route handler file from the URL, not by guessing.",
+    "Correct the message and set lesson to 1.",
+    "Refresh the endpoint and confirm the JSON."
+  ],
+  "hint": "The route segment is api/hello. In the App Router, the HTTP handler is the route.ts file inside that folder.",
+  "expected": "HTTP 200 and JSON containing message: \"Hello from the Next.js server!\" and lesson: 1.",
+  "verify": "Open /api/hello in the browser or run curl -i http://localhost:3000/api/hello."
+};
+
+## What you'll learn
+
+- Explain file-system routing in the App Router.
+- Locate a Route Handler from its URL.
+- Inspect an HTTP response and its JSON body.
+
+### A URL maps to a file
+
+In the App Router, folders define URL segments. A route.ts file exports HTTP method handlers for that route. The handler is server code; it does not run in the browser.
+
+### Inspect before changing code
+
+Start with the request and response. Check the status, content type, and JSON body, then search the repository for the handler.
+
+## Walkthrough
+
+1. Start the app with npm run dev.
+2. Visit /api/hello and inspect the JSON response.
+3. Open app/api/hello/route.ts in your editor.
+4. Change the message field, save, and refresh the endpoint.
+5. Explain why this code runs on the server.
+
+### Code walkthrough: `app/api/hello/route.ts`
+
+```tsx
+import { NextResponse } from "next/server";
+
+export function GET() {
+  return NextResponse.json({
+    message: "Hello from the Next.js server!",
+    lesson: 1,
+  });
+}
+```

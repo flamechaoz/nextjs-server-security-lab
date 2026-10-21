@@ -1,0 +1,45 @@
+export const lesson = {
+  "title": "Return predictable errors",
+  "summary": "Handle malformed input, missing resources, and unexpected failures safely.",
+  "debugTitle": "A missing task returns HTTP 500",
+  "debugScenario": "The endpoint treats a missing record as an unexpected server error. Distinguish a valid request for a nonexistent task from an actual server failure.",
+  "debugTasks": [
+    "Request an ID that does not exist.",
+    "Trace the not-found branch after the lookup.",
+    "Return a 404 with a stable error body.",
+    "Keep unexpected exceptions separate."
+  ],
+  "hint": "A successful lookup that returns no record is an expected not-found condition, not an internal server error.",
+  "expected": "Unknown IDs return HTTP 404 and a safe error message.",
+  "verify": "Request /api/tasks/999 and check both status and JSON."
+};
+
+## What you'll learn
+
+- Choose the correct status for common failures.
+- Separate expected errors from unexpected exceptions.
+- Avoid leaking stack traces.
+
+### Expected failures are part of the API
+
+Invalid input, missing records, and permission failures are normal outcomes. Handle them explicitly and return stable error shapes.
+
+### Do not expose internals
+
+Unexpected exceptions should be logged appropriately on the server while clients receive a generic message and a correlation identifier when available.
+
+## Walkthrough
+
+1. Inspect the error responses in the task routes.
+2. Try malformed JSON, invalid IDs, and unknown IDs.
+3. Compare status codes and response shapes.
+4. Check that internal stack traces are not returned.
+
+### Code walkthrough: `app/api/tasks/[id]/route.ts`
+
+```tsx
+return NextResponse.json(
+  { error: "Task not found" },
+  { status: 404 }
+);
+```

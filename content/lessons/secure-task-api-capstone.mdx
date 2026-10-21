@@ -1,0 +1,50 @@
+export const lesson = {
+  "title": "Ship the secure task API",
+  "summary": "Combine server architecture, validation, authorization, tests, and release checks.",
+  "debugTitle": "The capstone passes happy-path tests but leaks data",
+  "debugScenario": "All CRUD tests pass for one user, but a second user can still retrieve the first user's record. Add cross-user tests and enforce ownership across every protected method.",
+  "debugTasks": [
+    "Audit GET, PATCH, and DELETE separately.",
+    "Create two users with distinct owned tasks.",
+    "Test read and mutation attempts across owners.",
+    "Run the full quality checks and document remaining limitations."
+  ],
+  "hint": "Do not assume fixing GET also protects PATCH and DELETE. Check every operation independently.",
+  "expected": "Every protected method enforces ownership; tests prove denied requests do not disclose or mutate another user's data.",
+  "verify": "Run npm run lint, npm run typecheck, npm test, npm run test:coverage, and npm run build."
+};
+
+## What you'll learn
+
+- Implement a complete protected API flow.
+- Demonstrate authorization and validation with tests.
+- Explain the release readiness of the solution.
+
+### Security is end-to-end
+
+A secure API needs multiple controls working together: validated input, verified identity, resource-level authorization, safe errors, and regression tests.
+
+### A release is evidence
+
+A production-ready change is not just code that works locally. It includes tests, type checks, quality checks, operational considerations, and a clear explanation of limitations.
+
+## Walkthrough
+
+1. Review the task CRUD routes and service layer.
+2. Ensure all inputs are validated.
+3. Verify authentication and ownership checks for protected actions.
+4. Add success, invalid input, not-found, and denied-access tests.
+5. Run lint, typecheck, tests, and build.
+6. Document limitations of the in-memory teaching store.
+
+### Code walkthrough: `app/api/tasks/[id]/route.ts`
+
+```tsx
+// Release checklist
+// 1. Validate untrusted input
+// 2. Verify authenticated identity
+// 3. Authorize access to the resource
+// 4. Perform the operation
+// 5. Return a safe, predictable response
+// 6. Cover success and failure paths with tests
+```

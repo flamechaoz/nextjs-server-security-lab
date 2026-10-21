@@ -1,0 +1,47 @@
+export const lesson = {
+  "title": "Read dynamic route parameters",
+  "summary": "Extract IDs from dynamic segments and use them to process the requested resource.",
+  "debugTitle": "Every task URL returns the same record",
+  "debugScenario": "A dynamic route ignores its [id] parameter and always processes task 1. Update the handler to read, validate, and use the actual route parameter.",
+  "debugTasks": [
+    "Request two different task IDs.",
+    "Locate app/api/tasks/[id]/route.ts.",
+    "Await context.params and parse the ID.",
+    "Return the requested record or a suitable 400/404 response."
+  ],
+  "hint": "The URL segment is available through context.params, and the current type is Promise<{ id: string }>.",
+  "expected": "Different valid IDs address different records; invalid IDs return 400 and unknown IDs return 404.",
+  "verify": "Try /api/tasks/1, /api/tasks/2, /api/tasks/abc, and /api/tasks/999."
+};
+
+## What you'll learn
+
+- Explain dynamic route segments.
+- Await params in current App Router handlers.
+- Validate route values before using them.
+
+### Dynamic segments
+
+A folder named [id] matches a URL segment such as /api/tasks/12. The segment name becomes a property on params.
+
+### Params may be asynchronous
+
+In current Next.js App Router conventions, params is a Promise in route handler context. Await it before reading the ID.
+
+## Walkthrough
+
+1. Visit /api/tasks/1 and /api/tasks/999.
+2. Open app/api/tasks/[id]/route.ts.
+3. Trace how context.params is awaited and parsed.
+4. Follow the ID into findTask and inspect the response.
+
+### Code walkthrough: `app/api/tasks/[id]/route.ts`
+
+```tsx
+type Context = { params: Promise<{ id: string }> };
+
+export async function GET(_request: Request, context: Context) {
+  const { id } = await context.params;
+  return Response.json({ requestedId: id });
+}
+```

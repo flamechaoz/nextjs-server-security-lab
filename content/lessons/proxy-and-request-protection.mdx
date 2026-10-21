@@ -1,0 +1,47 @@
+export const lesson = {
+  "title": "Use Proxy without over-trusting it",
+  "summary": "Understand request interception and why sensitive operations still need authorization.",
+  "debugTitle": "A protected API is skipped by the matcher",
+  "debugScenario": "The request matcher excludes an API path, so a redirect-only Proxy check never runs for it. Fix the assumptions: protect the sensitive operation in the route/service and correct the matcher if the early gate is needed.",
+  "debugTasks": [
+    "Inspect the matcher and list the routes it covers.",
+    "Request the sensitive endpoint directly.",
+    "Enforce authentication and authorization in the handler/service.",
+    "Update the matcher only as an additional layer."
+  ],
+  "hint": "Proxy is not a substitute for verifying access at the protected data operation.",
+  "expected": "Direct requests to protected endpoints remain secure even if an early request check is bypassed.",
+  "verify": "Test the endpoint directly with and without a valid session."
+};
+
+## What you'll learn
+
+- Explain the purpose of Proxy.
+- Match paths intentionally.
+- Keep authorization close to protected data.
+
+### Proxy is an early gate
+
+Proxy can perform lightweight redirects and request checks before a route continues. It is useful for coarse navigation and request policy.
+
+### It is not the whole security model
+
+A request may reach a handler through different paths or runtime contexts. Verify identity and permissions in the protected operation itself. Current Next.js versions use proxy.ts; older projects may use middleware.ts.
+
+## Walkthrough
+
+1. Inspect proxy.ts if present, or compare the middleware.ts convention for older versions.
+2. Review which paths are matched.
+3. Check that protected route handlers still verify access.
+4. Avoid putting database-heavy authorization logic in a request interceptor.
+
+### Code walkthrough: `proxy.ts`
+
+```tsx
+import { NextResponse, type NextRequest } from "next/server";
+
+export function proxy(request: NextRequest) {
+  // Lightweight routing decision only.
+  return NextResponse.next();
+}
+```

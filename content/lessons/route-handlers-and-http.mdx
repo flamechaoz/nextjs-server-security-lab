@@ -1,0 +1,50 @@
+export const lesson = {
+  "title": "Build a Route Handler",
+  "summary": "Use HTTP methods, request bodies, status codes, and JSON responses deliberately.",
+  "debugTitle": "POST reports success but returns the wrong status",
+  "debugScenario": "Creating a resource returns HTTP 200 even though the client expects a creation response. Find the POST export and make its response semantics correct.",
+  "debugTasks": [
+    "Send a POST request to /api/tasks.",
+    "Find the POST handler in app/api/tasks/route.ts.",
+    "Return 201 for a successful creation.",
+    "Keep validation failures as client errors."
+  ],
+  "hint": "The status code can be passed as the second argument to Response.json or NextResponse.json.",
+  "expected": "A successful task creation returns HTTP 201; invalid input does not return a success status.",
+  "verify": "Use the task playground or curl with a JSON body and inspect the status line."
+};
+
+## What you'll learn
+
+- Implement a GET and POST handler.
+- Parse a request body safely.
+- Choose meaningful HTTP status codes.
+
+### One route, several methods
+
+A route.ts file can export GET, POST, PATCH, DELETE, and other supported HTTP method functions. Each handler should have one clear responsibility.
+
+### The response is part of the API
+
+A correct API communicates success and failure through status codes and stable response shapes, not only through message text.
+
+## Walkthrough
+
+1. Open app/api/tasks/route.ts.
+2. Compare GET and POST behavior.
+3. Send a POST request with a JSON body.
+4. Inspect the status and returned task object.
+5. Try a malformed body and observe the error response.
+
+### Code walkthrough: `app/api/tasks/route.ts`
+
+```tsx
+export async function GET() {
+  return Response.json({ data: [] });
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  return Response.json({ data: body }, { status: 201 });
+}
+```

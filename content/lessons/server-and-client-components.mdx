@@ -1,0 +1,53 @@
+export const lesson = {
+  "title": "Choose the right component boundary",
+  "summary": "Separate server-rendered data from client-side interaction.",
+  "debugTitle": "An interactive button cannot use state",
+  "debugScenario": "A learner removed the client directive from a component that calls useState and uses an onClick handler. Diagnose the component boundary and fix it without converting the whole application to client rendering.",
+  "debugTasks": [
+    "Find the component that uses useState or onClick.",
+    "Check whether it declares the client boundary.",
+    "Restore the directive at the top of the relevant module.",
+    "Run the page and verify the interaction works."
+  ],
+  "hint": "The directive must be the first statement in the client module, before imports.",
+  "expected": "The interactive component compiles and responds to clicks while the surrounding page can remain a Server Component.",
+  "verify": "Run npm run dev, open the page that renders the component, and click the button."
+};
+
+## What you'll learn
+
+- Describe Server Components and Client Components.
+- Identify when state and event handlers require a client boundary.
+- Avoid sending server-only values to the browser.
+
+### Server by default
+
+Components in the App Router are Server Components unless marked with the use client directive. They can read server-side resources and render HTML without shipping their implementation to the browser.
+
+### Client for interaction
+
+Use Client Components for state, effects, event handlers, and browser APIs. Keep the client boundary as small as practical.
+
+## Walkthrough
+
+1. Open app/page.tsx and identify the server-rendered page.
+2. Inspect components/TaskManager.tsx for interactive behavior.
+3. Find its use client directive and explain why it is needed.
+4. Move no secrets or server-only dependencies into a client component.
+
+### Code walkthrough: `components/TaskManager.tsx`
+
+```tsx
+"use client";
+
+import { useState } from "react";
+
+export function ExampleCounter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Clicked {count} times
+    </button>
+  );
+}
+```

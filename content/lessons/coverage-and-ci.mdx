@@ -1,0 +1,47 @@
+export const lesson = {
+  "title": "Use coverage and CI as feedback",
+  "summary": "Run quality gates and find untested branches without chasing vanity metrics.",
+  "debugTitle": "CI passes while a security branch is untested",
+  "debugScenario": "The overall coverage percentage looks acceptable, but the unauthorized-access branch has no assertion. Add a focused regression test instead of simply lowering the threshold.",
+  "debugTasks": [
+    "Inspect the coverage report for the protected route/service.",
+    "Find the uncovered denial branch.",
+    "Write a test for the forbidden behavior.",
+    "Re-run coverage and explain what the metric still cannot prove."
+  ],
+  "hint": "Branch coverage can reveal an unexecuted path, but only a meaningful assertion proves the expected outcome.",
+  "expected": "The denied path is exercised and the test verifies status plus absence of side effects.",
+  "verify": "Run npm run test:coverage and inspect the report for the changed file."
+};
+
+## What you'll learn
+
+- Generate a coverage report.
+- Understand statements, branches, functions, and lines.
+- Automate tests, lint, and type checking.
+
+### Coverage is a map, not a grade
+
+Coverage shows which code executed during tests. It does not prove assertions are meaningful or that all security scenarios are covered.
+
+### Repeatable quality gates
+
+CI should run the same predictable checks developers can run locally: lint, type checking, tests, and production build where appropriate.
+
+## Walkthrough
+
+1. Run npm run test:coverage.
+2. Inspect uncovered branches in the report.
+3. Add tests for meaningful uncovered failure paths.
+4. Run npm run lint and npm run typecheck.
+
+### Code walkthrough: `package.json`
+
+```tsx
+"scripts": {
+  "test": "jest --runInBand",
+  "test:coverage": "jest --coverage --runInBand",
+  "lint": "eslint .",
+  "typecheck": "tsc --noEmit"
+}
+```

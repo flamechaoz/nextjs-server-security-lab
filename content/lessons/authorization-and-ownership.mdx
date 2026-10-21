@@ -1,0 +1,46 @@
+export const lesson = {
+  "title": "Authorize every resource access",
+  "summary": "Prevent users from reading or changing records they do not own.",
+  "debugTitle": "Changing the ID exposes another user's task",
+  "debugScenario": "A signed-in user can change /api/tasks/1 to /api/tasks/2 and read another person's task. Add resource-level authorization before returning or modifying the record.",
+  "debugTasks": [
+    "Reproduce the issue with two test users.",
+    "Find the resource lookup and mutation path.",
+    "Check ownership before returning or changing data.",
+    "Add a regression test for cross-user access."
+  ],
+  "hint": "The check must compare the authenticated user's ID with the owner recorded on the resource. Hiding the link is not enough.",
+  "expected": "Owners can access their own tasks; other users cannot read or mutate them.",
+  "verify": "Use tests to assert that denied requests return 403 or a deliberate 404 policy and leave data unchanged."
+};
+
+## What you'll learn
+
+- Explain IDOR and broken object-level authorization.
+- Check resource ownership on the server.
+- Test both allowed and denied access.
+
+### A valid ID is not permission
+
+Knowing a record ID must not grant access. Every protected read and mutation needs a server-side permission check for the current user and requested resource.
+
+### Check at the data boundary
+
+Middleware can help with coarse routing, but ownership checks belong close to the resource operation as well. Do not rely on hidden buttons or client-side checks.
+
+## Walkthrough
+
+1. Identify every task operation that should be private.
+2. Trace the current user and the target resource through the service.
+3. Add an ownership check before reading or mutating protected data.
+4. Test owner, different user, and missing record cases.
+
+### Code walkthrough: `lib/services/task-service.ts`
+
+```tsx
+const task = findTask(taskId);
+if (!task || task.ownerId !== currentUser.id) {
+  return notFoundOrForbidden();
+}
+// Only mutate after authorization succeeds.
+```

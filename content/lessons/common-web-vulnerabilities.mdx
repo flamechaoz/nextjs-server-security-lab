@@ -1,0 +1,47 @@
+export const lesson = {
+  "title": "Recognize common web vulnerabilities",
+  "summary": "Understand XSS, CSRF, injection, open redirects, and abuse controls.",
+  "debugTitle": "A redirect accepts an untrusted destination",
+  "debugScenario": "A login returnTo parameter can point to an external phishing site. Restrict redirects to trusted local paths or an explicit allowlist.",
+  "debugTasks": [
+    "Reproduce the redirect with an external URL.",
+    "Find where returnTo is read and used.",
+    "Reject protocol-relative and external destinations.",
+    "Add tests for a local path and a malicious URL."
+  ],
+  "hint": "Do not assume that a string beginning with / is safe; values beginning with // can be interpreted as protocol-relative URLs.",
+  "expected": "Only approved local destinations are accepted; untrusted external destinations fall back to a safe default.",
+  "verify": "Test /dashboard, https://attacker.example, and //attacker.example."
+};
+
+## What you'll learn
+
+- Identify common trust-boundary failures.
+- Use safe rendering and parameterized data access.
+- Choose suitable request and origin protections.
+
+### Treat input as hostile
+
+Validate input at the boundary, use safe rendering, avoid unsafe HTML injection, and use parameterized database operations. Validation should complement—not replace—safe APIs.
+
+### Browser requests have security context
+
+Cookie-authenticated state changes need a CSRF strategy. CORS controls browser access to responses; it is not authentication and does not stop every cross-origin request.
+
+## Walkthrough
+
+1. Review any use of dangerouslySetInnerHTML or dynamic redirects.
+2. Inspect database query construction for string concatenation.
+3. Identify state-changing endpoints that rely on cookies.
+4. Document rate-limit and request-size controls appropriate to deployment.
+
+### Code walkthrough: `app/api/tasks/route.ts`
+
+```tsx
+// Validate the input first.
+const parsed = createTaskSchema.safeParse(body);
+if (!parsed.success) {
+  return Response.json({ error: "Invalid input" }, { status: 400 });
+}
+// Use parameterized database APIs for persistence.
+```

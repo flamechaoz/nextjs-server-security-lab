@@ -1,0 +1,51 @@
+export const lesson = {
+  "title": "Validate untrusted input",
+  "summary": "Use Zod to turn unknown request bodies into typed, validated data.",
+  "debugTitle": "An empty task title is accepted",
+  "debugScenario": "The endpoint accepts whitespace-only titles. Find the validation schema and ensure the value is trimmed before the minimum-length rule is applied.",
+  "debugTasks": [
+    "POST a title containing only spaces.",
+    "Find the Zod schema used by the endpoint.",
+    "Trim the string and require at least one character.",
+    "Add or update a test for whitespace-only input."
+  ],
+  "hint": "A plain min(1) checks the original string unless trimming is applied. Chain trim() before min(1).",
+  "expected": "Whitespace-only titles fail validation and return HTTP 400 without creating a task.",
+  "verify": "Run npm test and send the same invalid POST request again."
+};
+
+## What you'll learn
+
+- Treat request bodies as untrusted input.
+- Validate with safeParse.
+- Return useful errors without accepting invalid data.
+
+### Types do not validate runtime input
+
+TypeScript types disappear at runtime. JSON received over HTTP must be validated before business logic trusts it.
+
+### safeParse makes failure explicit
+
+Zod's safeParse returns a success result or structured validation errors without requiring exceptions for expected invalid input.
+
+## Walkthrough
+
+1. Open lib/validation/task-schema.ts.
+2. Inspect the schema constraints.
+3. Follow the POST handler from request.json to safeParse.
+4. Try an empty title and an invalid completed value.
+
+### Code walkthrough: `lib/validation/task-schema.ts`
+
+```tsx
+import { z } from "zod";
+
+export const createTaskSchema = z.object({
+  title: z.string().trim().min(1).max(120),
+});
+
+const result = createTaskSchema.safeParse(input);
+if (!result.success) {
+  // Return HTTP 400; do not persist input.
+}
+```

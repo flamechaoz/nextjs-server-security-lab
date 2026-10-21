@@ -1,0 +1,44 @@
+export const lesson = {
+  "title": "Test pure functions and services",
+  "summary": "Cover boundaries, invalid values, and expected failures without a running server.",
+  "debugTitle": "A boundary case slips through",
+  "debugScenario": "A validation helper accepts an empty string after trimming. Add the missing boundary test and fix the rule so invalid input is rejected.",
+  "debugTasks": [
+    "Write a test for whitespace-only input.",
+    "Run it and confirm it fails before the fix.",
+    "Correct the validation or business rule.",
+    "Run the full test suite."
+  ],
+  "hint": "Test the normalized value, not only the raw input. Whitespace may become an empty string after trimming.",
+  "expected": "The invalid boundary case is rejected, and existing valid cases still pass.",
+  "verify": "Run npm test and review the test output for the new case."
+};
+
+## What you'll learn
+
+- Test pure business rules.
+- Cover boundary and negative cases.
+- Mock external dependencies selectively.
+
+### Test behavior, not line count
+
+A useful test suite covers meaningful inputs and outputs, including boundaries and failure cases. High line coverage alone does not prove the code is correct.
+
+### Keep units isolated
+
+Pure functions need no mocks. For services that use external systems, inject dependencies or mock the boundary rather than mocking every internal call.
+
+## Walkthrough
+
+1. Open lib/task-rules.test.ts and the validation schema tests.
+2. Add empty, boundary, and invalid input cases.
+3. Use clear test names that describe behavior.
+4. Avoid dependence on test execution order.
+
+### Code walkthrough: `lib/task-rules.test.ts`
+
+```tsx
+it("rejects a different user", () => {
+  expect(canEditTask("user-2", "user-1")).toBe(false);
+});
+```

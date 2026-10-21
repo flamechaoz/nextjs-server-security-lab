@@ -1,0 +1,48 @@
+export const lesson = {
+  "title": "Fetch data on the server",
+  "summary": "Keep trusted API calls and secrets on the server, and understand cache behavior.",
+  "debugTitle": "A private token is exposed to the client",
+  "debugScenario": "An upstream token was placed in a NEXT_PUBLIC_ environment variable and imported by a client component. Remove the exposure and move the request to a server-side module.",
+  "debugTasks": [
+    "Search for NEXT_PUBLIC_ variables that contain secrets.",
+    "Move the upstream request to a server-only module.",
+    "Read the private token only on the server.",
+    "Pass only the minimum safe data to the UI."
+  ],
+  "hint": "NEXT_PUBLIC_ variables are inlined into browser bundles. The fix is architectural, not merely renaming the variable.",
+  "expected": "The browser receives display data only; private credentials remain in server runtime configuration.",
+  "verify": "Inspect the client bundle and source imports; confirm no private token is included."
+};
+
+## What you'll learn
+
+- Fetch data from a Server Component.
+- Keep private environment variables server-only.
+- Choose caching behavior intentionally.
+
+### Server-to-server calls
+
+A Server Component can call a service or upstream API without exposing private credentials to the browser. Prefer a server-only service module for shared data access.
+
+### Freshness is a decision
+
+Caching and revalidation affect whether users see fresh data. Decide based on the data's requirements rather than relying on assumptions.
+
+## Walkthrough
+
+1. Inspect lib/services/task-service.ts.
+2. Identify where data access is separated from UI code.
+3. Review .env.example and distinguish public from private variables.
+4. Never prefix a secret with NEXT_PUBLIC_.
+
+### Code walkthrough: `lib/services/task-service.ts`
+
+```tsx
+// Keep trusted data access in a server module.
+export function listTasks() {
+  return tasks;
+}
+
+// For external APIs, read private credentials here,
+// not in a Client Component.
+```

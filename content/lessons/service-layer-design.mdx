@@ -1,0 +1,46 @@
+export const lesson = {
+  "title": "Separate routes from business logic",
+  "summary": "Keep handlers small by moving business rules into testable service functions.",
+  "debugTitle": "Business logic is duplicated in two handlers",
+  "debugScenario": "Task lookup logic is copied into multiple route handlers and has diverged. Extract or reuse a service function so the behavior is consistent and directly testable.",
+  "debugTasks": [
+    "Search for duplicated task lookup logic.",
+    "Move shared behavior to the task service.",
+    "Update handlers to use the shared function.",
+    "Test the service without constructing an HTTP request."
+  ],
+  "hint": "Look in lib/services/task-service.ts for existing reusable functions before creating a new abstraction.",
+  "expected": "Route handlers delegate data operations to shared service functions.",
+  "verify": "Run the test suite and manually verify GET and PATCH behavior."
+};
+
+## What you'll learn
+
+- Explain the route/service/repository boundary.
+- Keep validation and business rules explicit.
+- Make logic easy to test without HTTP.
+
+### Thin route handlers
+
+Route handlers translate HTTP into application calls and application results back into HTTP. Business rules should live in focused functions that can be tested directly.
+
+### Storage can change
+
+An in-memory store is useful for teaching, but a production system should use persistent storage and account for concurrent updates.
+
+## Walkthrough
+
+1. Open lib/services/task-service.ts.
+2. Compare its functions with app/api/tasks/route.ts.
+3. Identify which code knows about HTTP and which code knows task rules.
+4. Add a focused service function rather than duplicating logic in a route.
+
+### Code walkthrough: `lib/services/task-service.ts`
+
+```tsx
+export function findTask(id: number) {
+  return tasks.find((task) => task.id === id) ?? null;
+}
+
+// Route handler translates null into HTTP 404.
+```

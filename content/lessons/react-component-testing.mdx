@@ -1,0 +1,45 @@
+export const lesson = {
+  "title": "Test UI behavior accessibly",
+  "summary": "Test what users see and do instead of relying on component internals.",
+  "debugTitle": "The component test cannot find the button",
+  "debugScenario": "A test searches for a CSS class that changed during a refactor. Update it to query by accessible role and name, then verify the user's interaction.",
+  "debugTasks": [
+    "Inspect the failing query.",
+    "Replace implementation-specific selectors with a role/name query.",
+    "Perform the relevant user interaction.",
+    "Assert the visible result."
+  ],
+  "hint": "Use getByRole with the button's accessible name when possible.",
+  "expected": "The test remains stable across styling changes and verifies the user-facing behavior.",
+  "verify": "Run the relevant Jest test and confirm it passes without querying a CSS class."
+};
+
+## What you'll learn
+
+- Render components in JSDOM.
+- Query by role and accessible name.
+- Test loading, success, and error states.
+
+### Prefer user-visible contracts
+
+React Testing Library encourages queries that resemble how a user or assistive technology finds elements, such as roles and accessible names.
+
+### Avoid brittle implementation tests
+
+Tests should usually avoid depending on private state, incidental class names, or component internals. Assert on visible behavior and accessible semantics.
+
+## Walkthrough
+
+1. Open components/TaskManager.tsx.
+2. Identify the accessible names of interactive controls.
+3. Write a test that renders the component and interacts with it.
+4. Assert the resulting UI, not a private state variable.
+
+### Code walkthrough: `components/TaskManager.tsx`
+
+```tsx
+render(<button>Save task</button>);
+expect(
+  screen.getByRole("button", { name: /save task/i })
+).toBeInTheDocument();
+```

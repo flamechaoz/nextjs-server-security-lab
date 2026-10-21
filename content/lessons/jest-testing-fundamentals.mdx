@@ -1,0 +1,46 @@
+export const lesson = {
+  "title": "Set up and read Jest tests",
+  "summary": "Understand test structure, assertions, setup, and repeatable test runs.",
+  "debugTitle": "The test passes without testing the intended rule",
+  "debugScenario": "A test asserts a hard-coded true value and never calls the function. Rewrite it so the real behavior is exercised and a regression would fail the test.",
+  "debugTasks": [
+    "Inspect the assertion and identify what is actually executed.",
+    "Call the function under test.",
+    "Assert the returned value for a meaningful input.",
+    "Temporarily break the implementation and confirm the test fails."
+  ],
+  "hint": "A test is only useful if changing the behavior under test can make the assertion fail.",
+  "expected": "The test executes the function and fails when its behavior regresses.",
+  "verify": "Run npm test and temporarily invert the function result to confirm the test catches it."
+};
+
+## What you'll learn
+
+- Run the existing test suite.
+- Use Arrange–Act–Assert.
+- Distinguish unit, integration, and end-to-end tests.
+
+### Tests describe behavior
+
+A good test states a behavior, creates the required setup, performs an action, and asserts an observable result. Tests should not depend on execution order.
+
+### Choose the right test boundary
+
+Unit tests isolate a small function. Integration tests verify cooperating parts. End-to-end tests verify a user flow through the running app.
+
+## Walkthrough
+
+1. Run npm test.
+2. Open lib/task-rules.test.ts.
+3. Map each test to Arrange, Act, and Assert.
+4. Add one test for a boundary case.
+
+### Code walkthrough: `jest.config.ts`
+
+```tsx
+describe("canEditTask", () => {
+  it("allows the owner", () => {
+    expect(canEditTask("user-1", "user-1")).toBe(true);
+  });
+});
+```

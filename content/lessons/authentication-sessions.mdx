@@ -1,0 +1,46 @@
+export const lesson = {
+  "title": "Authenticate the requester",
+  "summary": "Understand sessions, cookies, and the difference between identity and permission.",
+  "debugTitle": "A request can impersonate another user",
+  "debugScenario": "The endpoint trusts a userId field sent by the client instead of verifying a session. Change the flow so identity comes from the server-verified session.",
+  "debugTasks": [
+    "Inspect the source of the user ID.",
+    "Remove trust in userId from the request body.",
+    "Require a verified session before protected work.",
+    "Test both signed-out and signed-in cases."
+  ],
+  "hint": "Anything supplied by the browser can be modified. Derive identity from the verified session, not from submitted form data.",
+  "expected": "Unauthenticated requests receive HTTP 401 and cannot trigger protected operations.",
+  "verify": "Write tests for no session and a valid session; assert the service is not called when signed out."
+};
+
+## What you'll learn
+
+- Distinguish authentication from authorization.
+- Explain secure session-cookie flags.
+- Verify identity on the server for protected actions.
+
+### Authentication answers who
+
+A protected endpoint must establish the current identity from a trusted session or token. A user ID supplied in the request body is not proof of identity.
+
+### Cookie protections
+
+Session cookies commonly use HttpOnly, Secure in HTTPS deployments, and an appropriate SameSite policy. These attributes help but do not replace authorization or CSRF analysis.
+
+## Walkthrough
+
+1. Review the authentication boundary chosen for the project.
+2. Identify how a protected route obtains the current user.
+3. Check session expiration and cookie settings.
+4. Ensure client-provided user IDs are never treated as proof of identity.
+
+### Code walkthrough: `lib/auth.ts`
+
+```tsx
+// Pseudocode: use your trusted auth provider.
+const session = await auth();
+if (!session?.user?.id) {
+  return Response.json({ error: "Unauthorized" }, { status: 401 });
+}
+```
