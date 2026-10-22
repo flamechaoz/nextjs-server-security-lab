@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Lesson } from "@/lib/curriculum";
 import { lessons, modules } from "@/lib/curriculum";
 
-function LessonActivityLinks({ lesson, completed, showModule = false }: { lesson: Lesson; completed: boolean; showModule?: boolean }) {
+function LessonActivityLinks({ lesson, completed, showModule = false }: Readonly<{ lesson: Lesson; completed: boolean; showModule?: boolean }>) {
   return (
     <div className="lesson-activity-links">
       <Link href={`/learn/${lesson.slug}`} className="lesson-row">
@@ -36,11 +36,10 @@ export default function CurriculumDashboard() {
   useEffect(() => {
     const read = () => {
       try {
-        setCompleted(
-          JSON.parse(
-            localStorage.getItem("next-lab-completed") || "[]",
-          ) as number[],
-        );
+        const stored = JSON.parse(
+          localStorage.getItem("next-lab-completed") || "[]",
+        ) as number[];
+        setCompleted(stored.filter((id) => lessons.some((lesson) => lesson.id === id)));
       } catch {
         setCompleted([]);
       }
@@ -67,7 +66,7 @@ export default function CurriculumDashboard() {
       <div className="hero-grid">
         <div className="hero-copy">
           <div className="eyebrow">
-            <span className="eyebrow-dot" /> PROJECT-BASED LEARNING · 20
+            <span className="eyebrow-dot" /> PROJECT-BASED LEARNING · 16
             CHAPTERS
           </div>
           <h1>
@@ -90,10 +89,10 @@ export default function CurriculumDashboard() {
           </div>
           <div className="hero-facts">
             <span>
-              <strong>20</strong> guided chapters
+              <strong>16</strong> guided chapters
             </span>
             <span>
-              <strong>40</strong> lesson + debug activities
+              <strong>32</strong> lesson + debug activities
             </span>
             <span>
               <strong>1</strong> evolving project
@@ -174,8 +173,8 @@ export default function CurriculumDashboard() {
             <div className="section-kicker">THE LEARNING PATH</div>
             <h2>Build your server-side instincts</h2>
             <p>
-              Five modules, from tracing your first request to shipping a secure
-              API.
+              Four modules, from tracing your first request to testing a real
+              component.
             </p>
           </div>
           <div className="search-wrap">

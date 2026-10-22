@@ -24,10 +24,6 @@ const exerciseFiles: Record<number, string> = {
   14: "debugging/lesson-14/broken-test.test.ts",
   15: "debugging/lesson-15/broken-tests.test.ts",
   16: "debugging/lesson-16/broken-component.test.tsx",
-  17: "app/api/debug/lesson-17/route.ts",
-  18: "app/api/debug/lesson-18/route.ts",
-  19: "app/api/debug/lesson-19/route.ts",
-  20: "app/api/debug/lesson-20/route.ts",
 };
 
 export async function getDebugExercise(id: number): Promise<DebugExercise> {

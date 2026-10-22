@@ -7,6 +7,7 @@ import {
   getLessonBySlug,
   getLessonContent,
   lessons,
+  modules,
 } from "@/lib/curriculum";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -49,19 +50,13 @@ export default async function LessonPage({ params }: Props) {
         </div>
         <div className="sidebar-progress-label">
           <span>YOUR LEARNING PATH</span>
-          <span>{String(lesson.id).padStart(2, "0")}/20</span>
+          <span>{String(lesson.id).padStart(2, "0")}/{lessons.length}</span>
         </div>
-        {[
-          "Server fundamentals",
-          "API design & validation",
-          "Application security",
-          "Unit testing",
-          "Production readiness",
-        ].map((moduleName) => {
-          const group = lessons.filter((item) => item.module === moduleName);
+        {modules.map((module) => {
+          const group = lessons.filter((item) => item.module === module.title);
           return (
-            <div className="sidebar-module" key={moduleName}>
-              <div className="sidebar-module-title">{moduleName}</div>
+            <div className="sidebar-module" key={module.title}>
+              <div className="sidebar-module-title">{module.title}</div>
               {group.map((item) => (
                 <Link
                   key={item.id}

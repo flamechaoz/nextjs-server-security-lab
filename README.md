@@ -2,12 +2,12 @@
 
 A chapter-based, project-based learning application inspired by the navigation and progressive walkthrough style of the official [Next.js Learn course](https://nextjs.org/learn). This is an original curriculum and project, not a copy of the official course.
 
-Learners move through 20 chapter pages. Every chapter has two modes:
+Learners move through 16 chapter pages. Every chapter has two modes:
 
 - **Part A — Learn:** concepts, objectives, step-by-step instructions, source-file references, code samples, and a live endpoint where relevant.
 - **Part B — Debug:** an intentionally broken local endpoint, a bug report, a list of investigation tasks, an optional hint, and expected behavior / verification steps.
 
-The course progresses from server request handling through API design, security, testing, and a final secure task API capstone.
+The course progresses from server request handling through API design, security, and testing a real component.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ Open http://localhost:3000.
 1. Open the home page and select **Start learning**.
 2. Navigate between chapters using the left-side chapter list or previous/next controls.
 3. Complete **Part A — Learn** before switching to **Part B — Debug**.
-4. Open the linked debug endpoint, observe the incorrect behavior, then open the exact `route.ts` file shown on the page.
+4. Open the linked debug endpoint when one is provided, observe the incorrect behavior, then open the exact exercise file shown on the page.
 5. Fix the bug, refresh the endpoint, and check the expected behavior.
 6. Use the hint if needed. Reference solution notes live in `solutions/lesson-XX/SOLUTION.md`.
 7. Mark the lesson complete. Progress is stored in the browser's local storage; checklist state is stored in the session storage.

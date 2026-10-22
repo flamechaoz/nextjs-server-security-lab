@@ -2,7 +2,7 @@ import { getDebugExercise } from "@/lib/debugging";
 
 describe("debug exercises", () => {
   it("provides a readable source file and reproduction endpoint for every lesson", async () => {
-    for (let id = 1; id <= 20; id += 1) {
+    for (let id = 1; id <= 16; id += 1) {
       const exercise = await getDebugExercise(id);
 
       expect(exercise.file).toBeTruthy();

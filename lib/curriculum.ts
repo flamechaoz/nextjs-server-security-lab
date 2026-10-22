@@ -16,10 +16,6 @@ import proxyAndRequestProtection, { lesson as lesson13 } from "@/content/lessons
 import jestTestingFundamentals, { lesson as lesson14 } from "@/content/lessons/jest-testing-fundamentals.mdx";
 import unitTestBusinessLogic, { lesson as lesson15 } from "@/content/lessons/unit-test-business-logic.mdx";
 import reactComponentTesting, { lesson as lesson16 } from "@/content/lessons/react-component-testing.mdx";
-import routeHandlerTesting, { lesson as lesson17 } from "@/content/lessons/route-handler-testing.mdx";
-import testingAccessControl, { lesson as lesson18 } from "@/content/lessons/testing-access-control.mdx";
-import coverageAndCi, { lesson as lesson19 } from "@/content/lessons/coverage-and-ci.mdx";
-import secureTaskApiCapstone, { lesson as lesson20 } from "@/content/lessons/secure-task-api-capstone.mdx";
 
 export type LessonContent = {
   title: string;
@@ -51,8 +47,7 @@ export const modules = [
   { title: "Server fundamentals", range: "01–04", description: "Trace requests and understand where Next.js code runs." },
   { title: "API design & validation", range: "05–08", description: "Build predictable endpoints with validated inputs and clear errors." },
   { title: "Application security", range: "09–13", description: "Protect identities, resources, secrets, and request boundaries." },
-  { title: "Unit testing", range: "14–18", description: "Test business logic, components, endpoints, and access control." },
-  { title: "Production readiness", range: "19–20", description: "Use coverage and CI checks to ship a secure capstone." },
+  { title: "Unit testing", range: "14–16", description: "Test business logic, components, endpoints, and access control." },
 ];
 
 const lessonDocuments: LessonDocument[] = [
@@ -72,10 +67,6 @@ const lessonDocuments: LessonDocument[] = [
   { metadata: { id: 14, slug: "jest-testing-fundamentals", module: "Unit testing", duration: "20 min", file: "jest.config.ts" }, content: lesson14, Component: jestTestingFundamentals },
   { metadata: { id: 15, slug: "unit-test-business-logic", module: "Unit testing", duration: "25 min", file: "lib/task-rules.test.ts" }, content: lesson15, Component: unitTestBusinessLogic },
   { metadata: { id: 16, slug: "react-component-testing", module: "Unit testing", duration: "25 min", file: "components/TaskManager.tsx" }, content: lesson16, Component: reactComponentTesting },
-  { metadata: { id: 17, slug: "route-handler-testing", module: "Unit testing", duration: "25 min", file: "app/api/tasks/route.ts", endpoint: "/api/tasks" }, content: lesson17, Component: routeHandlerTesting },
-  { metadata: { id: 18, slug: "testing-access-control", module: "Unit testing", duration: "30 min", file: "lib/services/task-service.ts" }, content: lesson18, Component: testingAccessControl },
-  { metadata: { id: 19, slug: "coverage-and-ci", module: "Production readiness", duration: "20 min", file: "package.json" }, content: lesson19, Component: coverageAndCi },
-  { metadata: { id: 20, slug: "secure-task-api-capstone", module: "Production readiness", duration: "60–90 min", file: "app/api/tasks/[id]/route.ts" }, content: lesson20, Component: secureTaskApiCapstone },
 ];
 
 export const lessons: Lesson[] = lessonDocuments.map(({ metadata, content }) => ({ ...metadata, ...content }));
