@@ -4,29 +4,29 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A POST endpoint returns 200 instead of 201, or returns a success response after invalid input. Correct the status and error path in the handler.
+The live POST playground sends a real JSON request to `/api/debug/lesson-03`. The handler successfully processes it but returns HTTP 200. Update the actual practice Route Handler to return `201 Created`, submit the request again, and verify the response status displayed by the client.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Open `/route-handlers-http`, submit the prefilled form, and record the status and JSON response.
+2. Inspect `components/RouteHandlerPlayground.tsx` to see how the client sends the POST and reads `response.status`.
+3. Open `app/api/debug/lesson-03/route.ts` and find the successful POST response.
+4. Change its HTTP status from 200 to 201.
+5. Submit again and verify the client displays `201 Created`.
+6. Explain why the status belongs to the HTTP response and why invalid requests should not return a success status.
 
 ## Hints (open one at a time)
 
 <details><summary>Hint 1: Find the entry point</summary>
-Start from the URL or UI action. App Router route segments map to folders under `app/`; a Route Handler is exported from `route.ts`.
+Start from the form submit action. Inspect the browser Network panel or the playground status, then open the matching Route Handler under `app/api/debug/lesson-03/route.ts`.
 </details>
 
 <details><summary>Hint 2: Trace the value</summary>
-Follow the value through each function call. Check its type, validation, and whether asynchronous values are awaited.
+The Client Component uses `fetch` with `method: "POST"` and a JSON body. The Route Handler parses the request and creates the response.
 </details>
 
 <details><summary>Hint 3: Verify the contract</summary>
-Compare status code, response body, side effects, and failure behavior with the intended contract.
+For a successful resource creation, return 201 Created. Keep malformed or invalid requests on a 4xx status path.
 </details>
 
 ## Evidence to submit

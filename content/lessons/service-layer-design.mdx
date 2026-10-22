@@ -1,17 +1,17 @@
 export const lesson = {
   "title": "Separate routes from business logic",
   "summary": "Keep handlers small by moving business rules into testable service functions.",
-  "debugTitle": "Business logic is duplicated in two handlers",
-  "debugScenario": "Task lookup logic is copied into multiple route handlers and has diverged. Extract or reuse a service function so the behavior is consistent and directly testable.",
+  "debugTitle": "A task-list route bypasses the service layer",
+  "debugScenario": "The practice route returns a hard-coded empty list with a response shape that differs from the service-backed task API. Compare both endpoints, then make the practice handler use the shared task service and return the same contract.",
   "debugTasks": [
-    "Search for duplicated task lookup logic.",
-    "Move shared behavior to the task service.",
-    "Update handlers to use the shared function.",
-    "Test the service without constructing an HTTP request."
+    "Open the live playground and compare the practice and task API responses.",
+    "Inspect app/api/debug/lesson-08/route.ts and lib/services/task-service.ts.",
+    "Use the shared listTasks service instead of hard-coded route data.",
+    "Return the same data and count shape as the task API."
   ],
-  "hint": "Look in lib/services/task-service.ts for existing reusable functions before creating a new abstraction.",
-  "expected": "Route handlers delegate data operations to shared service functions.",
-  "verify": "Run the test suite and manually verify GET and PATCH behavior."
+  "hint": "The task service already exports listTasks(). Keep the route focused on translating the service result into the established API response.",
+  "expected": "The practice endpoint delegates task retrieval to listTasks() and returns the same data and count contract as /api/tasks.",
+  "verify": "Refresh the playground comparison and confirm both endpoints return matching task data and count."
 };
 
 ## What you'll learn
@@ -31,9 +31,10 @@ An in-memory store is useful for teaching, but a production system should use pe
 ## Walkthrough
 
 1. Open lib/services/task-service.ts.
-2. Compare its functions with app/api/tasks/route.ts.
-3. Identify which code knows about HTTP and which code knows task rules.
+2. Compare its functions with app/api/tasks/route.ts and app/api/debug/lesson-08/route.ts.
+3. Identify which route delegates to the service and which hard-codes its response.
 4. Add a focused service function rather than duplicating logic in a route.
+5. Open the [service layer playground](/service-layer-design) to compare the response contracts.
 
 ### Code walkthrough: `lib/services/task-service.ts`
 

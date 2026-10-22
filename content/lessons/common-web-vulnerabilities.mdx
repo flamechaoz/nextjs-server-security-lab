@@ -2,16 +2,16 @@ export const lesson = {
   "title": "Recognize common web vulnerabilities",
   "summary": "Understand XSS, CSRF, injection, open redirects, and abuse controls.",
   "debugTitle": "A redirect accepts an untrusted destination",
-  "debugScenario": "A login returnTo parameter can point to an external phishing site. Restrict redirects to trusted local paths or an explicit allowlist.",
+  "debugScenario": "The practice endpoint accepts an untrusted returnTo destination. Use the playground to compare local paths, external URLs, and protocol-relative URLs without navigating away, then change the handler to allow only a safe local destination.",
   "debugTasks": [
-    "Reproduce the redirect with an external URL.",
-    "Find where returnTo is read and used.",
-    "Reject protocol-relative and external destinations.",
-    "Add tests for a local path and a malicious URL."
+    "Use the playground to submit /dashboard, an external URL, and a protocol-relative URL.",
+    "Inspect app/api/debug/lesson-12/route.ts and trace how returnTo becomes redirectTo.",
+    "Allow only safe local paths and use a safe fallback for other values.",
+    "Confirm the playground reports external and protocol-relative destinations as blocked."
   ],
-  "hint": "Do not assume that a string beginning with / is safe; values beginning with // can be interpreted as protocol-relative URLs.",
-  "expected": "Only approved local destinations are accepted; untrusted external destinations fall back to a safe default.",
-  "verify": "Test /dashboard, https://attacker.example, and //attacker.example."
+  "hint": "A path beginning with // is protocol-relative, not a local path. Parse the destination against the current origin and explicitly require a same-origin path that does not start with //.",
+  "expected": "Safe local paths such as /dashboard are preserved; external and protocol-relative destinations resolve to a safe local fallback.",
+  "verify": "Submit /dashboard, https://example.test, and //example.test; only the local path should be accepted."
 };
 
 ## What you'll learn
@@ -19,6 +19,7 @@ export const lesson = {
 - Identify common trust-boundary failures.
 - Use safe rendering and parameterized data access.
 - Choose suitable request and origin protections.
+- Recognize and prevent open redirects without navigating to an untrusted destination.
 
 ### Treat input as hostile
 
@@ -34,6 +35,7 @@ Cookie-authenticated state changes need a CSRF strategy. CORS controls browser a
 2. Inspect database query construction for string concatenation.
 3. Identify state-changing endpoints that rely on cookies.
 4. Document rate-limit and request-size controls appropriate to deployment.
+5. Open the [open redirect playground](/common-web-vulnerabilities) and compare local and external `returnTo` values.
 
 ### Code walkthrough: `app/api/tasks/route.ts`
 

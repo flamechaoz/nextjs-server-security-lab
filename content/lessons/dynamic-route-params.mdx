@@ -2,16 +2,16 @@ export const lesson = {
   "title": "Read dynamic route parameters",
   "summary": "Extract IDs from dynamic segments and use them to process the requested resource.",
   "debugTitle": "Every task URL returns the same record",
-  "debugScenario": "A dynamic route ignores its [id] parameter and always processes task 1. Update the handler to read, validate, and use the actual route parameter.",
+  "debugScenario": "The practice route /api/debug/tasks/[id] ignores its [id] parameter and always returns task 1. Update the exercise handler to read and return the requested route parameter.",
   "debugTasks": [
-    "Request two different task IDs.",
-    "Locate app/api/tasks/[id]/route.ts.",
-    "Await context.params and parse the ID.",
-    "Return the requested record or a suitable 400/404 response."
+    "Request /api/debug/tasks/1 and /api/debug/tasks/2 and compare the returned IDs.",
+    "Open app/api/debug/tasks/[id]/route.ts.",
+    "Await context.params and use the requested ID in the response.",
+    "Verify that each URL returns its own requestedTaskId."
   ],
-  "hint": "The URL segment is available through context.params, and the current type is Promise<{ id: string }>.",
-  "expected": "Different valid IDs address different records; invalid IDs return 400 and unknown IDs return 404.",
-  "verify": "Try /api/tasks/1, /api/tasks/2, /api/tasks/abc, and /api/tasks/999."
+  "hint": "The practice handler uses Context with params: Promise<{ id: string }>. Await it before returning requestedTaskId.",
+  "expected": "GET /api/debug/tasks/1 returns requestedTaskId: 1, and GET /api/debug/tasks/2 returns requestedTaskId: 2.",
+  "verify": "Open /api/debug/tasks/1 and /api/debug/tasks/2, or run curl -i http://localhost:3000/api/debug/tasks/2."
 };
 
 ## What you'll learn

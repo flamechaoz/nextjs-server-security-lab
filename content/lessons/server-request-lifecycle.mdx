@@ -1,17 +1,17 @@
 export const lesson = {
   "title": "Follow a request to its handler",
   "summary": "Trace a URL through the App Router and find the file that creates the response.",
-  "debugTitle": "The greeting endpoint returns the wrong lesson",
-  "debugScenario": "The API responds with JSON, but the lesson field is incorrect and the response message has been accidentally changed. Find the handler that owns GET /api/hello and correct the response.",
+  "debugTitle": "The practice endpoint returns a broken greeting",
+  "debugScenario": "The chapter's practice endpoint returns a 500 status and the wrong greeting. Compare the exercise source with the working /api/hello endpoint, then fix the exercise handler.",
   "debugTasks": [
-    "Open /api/hello and record the current response.",
-    "Find the route handler file from the URL, not by guessing.",
-    "Correct the message and set lesson to 1.",
-    "Refresh the endpoint and confirm the JSON."
+    "Reproduce the bug at /api/debug/lesson-01 and record the status and JSON.",
+    "Compare the exercise source with app/api/hello/route.ts.",
+    "Fix the status, message, and lesson number in debugging/lesson-01/broken-route.ts.",
+    "Refresh the practice endpoint and confirm the corrected response."
   ],
-  "hint": "The route segment is api/hello. In the App Router, the HTTP handler is the route.ts file inside that folder.",
+  "hint": "The exercise handler is exported from debugging/lesson-01/broken-route.ts and re-exported by the practice route. Compare its response with app/api/hello/route.ts.",
   "expected": "HTTP 200 and JSON containing message: \"Hello from the Next.js server!\" and lesson: 1.",
-  "verify": "Open /api/hello in the browser or run curl -i http://localhost:3000/api/hello."
+  "verify": "Open /api/debug/lesson-01 or run curl -i http://localhost:3000/api/debug/lesson-01."
 };
 
 ## What you'll learn

@@ -4,16 +4,17 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A route is protected only by a Proxy matcher, but the handler can still be called directly. Add authorization at the endpoint/data boundary and explain why Proxy alone is insufficient.
+A route is guarded by a cookie-presence check in Proxy. Use the playground to observe Proxy block requests without a cookie and continue, redirect, or rewrite requests with one. The practice Route Handler still lacks its own session check: a fabricated cookie bypasses Proxy, so fix that independent boundary too.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/proxy-and-request-protection` signed out and send a request; observe the Proxy response.
+3. Sign in at `/authentication-sessions`, return to the playground, and try continue, redirect, and rewrite.
+4. Inspect `proxy.ts` and `app/api/debug/lesson-13/route.ts` to trace each request path.
+5. Send a fabricated cookie with curl to demonstrate that cookie presence alone is not authentication.
+6. Add an independent session check in the handler; do not rely on a header that only Proxy adds.
+7. Verify the fabricated cookie is rejected by the handler.
 
 ## Hints (open one at a time)
 

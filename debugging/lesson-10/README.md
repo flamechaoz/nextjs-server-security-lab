@@ -4,16 +4,16 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-Changing /api/tasks/1 to /api/tasks/2 lets a user act on someone else's task. Add an ownership check in the protected service or handler and test the denial.
+Module 9 establishes the demo login session. The Module 10 practice API requires that session, but a signed-in user can still read another user's task because the route does not check ownership.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/authentication-sessions` and sign in with a username.
+3. Open `/authorization-and-ownership` and request task IDs `1` and `2`.
+4. Confirm task `1` belongs to the signed-in demo user, while task `2` belongs to a different user but is still returned.
+5. Add an owner check in `app/api/debug/lesson-10/route.ts` using the Module 9 session's user ID.
+6. Verify signed-out requests return 401, owned task `1` succeeds, and task `2` is denied.
 
 ## Hints (open one at a time)
 

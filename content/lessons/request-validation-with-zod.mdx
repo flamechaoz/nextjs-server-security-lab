@@ -1,17 +1,17 @@
 export const lesson = {
   "title": "Validate untrusted input",
   "summary": "Use Zod to turn unknown request bodies into typed, validated data.",
-  "debugTitle": "An empty task title is accepted",
-  "debugScenario": "The endpoint accepts whitespace-only titles. Find the validation schema and ensure the value is trimmed before the minimum-length rule is applied.",
+  "debugTitle": "A whitespace-only title passes validation",
+  "debugScenario": "The practice API accepts a title made of spaces. Reproduce it in the playground, then fix the Zod schema so whitespace is trimmed before the minimum-length rule is applied.",
   "debugTasks": [
-    "POST a title containing only spaces.",
-    "Find the Zod schema used by the endpoint.",
-    "Trim the string and require at least one character.",
-    "Add or update a test for whitespace-only input."
+    "Submit the prefilled whitespace-only title in the live playground.",
+    "Inspect app/api/debug/lesson-06/route.ts and locate the Zod schema.",
+    "Trim the title before requiring at least one character.",
+    "Submit again and confirm the route returns HTTP 400."
   ],
-  "hint": "A plain min(1) checks the original string unless trimming is applied. Chain trim() before min(1).",
-  "expected": "Whitespace-only titles fail validation and return HTTP 400 without creating a task.",
-  "verify": "Run npm test and send the same invalid POST request again."
+  "hint": "A plain min(1) accepts a string containing spaces. Apply trim() before min(1).",
+  "expected": "Whitespace-only titles fail validation and return HTTP 400.",
+  "verify": "Submit the same whitespace-only title again and confirm the response status changes from 201 to 400."
 };
 
 ## What you'll learn
@@ -34,6 +34,7 @@ Zod's safeParse returns a success result or structured validation errors without
 2. Inspect the schema constraints.
 3. Follow the POST handler from request.json to safeParse.
 4. Try an empty title and an invalid completed value.
+5. Open the [request validation playground](/request-validation-with-zod) and submit its whitespace-only title.
 
 ### Code walkthrough: `lib/validation/task-schema.ts`
 

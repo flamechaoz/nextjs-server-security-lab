@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
-// INTENTIONAL BUG: this endpoint assumes an upstream Proxy check is sufficient.
-export function GET() {
-  return NextResponse.json({ protected: true, data: "available without route-level checks" });
+
+// INTENTIONAL BUG: relies on Proxy and does not verify the session here.
+export function GET(request: Request) {
+  const proxyAction = request.headers.get("x-demo-proxy-action") ?? "continue";
+  return NextResponse.json({
+    handledBy: "lesson-13-route-handler",
+    proxyAction,
+    protectedData: "demo-only",
+    routeLevelSessionCheck: false,
+  });
 }

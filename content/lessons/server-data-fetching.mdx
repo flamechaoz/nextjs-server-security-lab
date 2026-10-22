@@ -1,17 +1,17 @@
 export const lesson = {
   "title": "Fetch data on the server",
   "summary": "Keep trusted API calls and secrets on the server, and understand cache behavior.",
-  "debugTitle": "A private token is exposed to the client",
-  "debugScenario": "An upstream token was placed in a NEXT_PUBLIC_ environment variable and imported by a client component. Remove the exposure and move the request to a server-side module.",
+  "debugTitle": "A server response exposes private data",
+  "debugScenario": "The practice API route returns a token-like value in its JSON response. Because the interactive playground receives that response in the browser, the value is exposed even though the route runs on the server.",
   "debugTasks": [
-    "Search for NEXT_PUBLIC_ variables that contain secrets.",
-    "Move the upstream request to a server-only module.",
-    "Read the private token only on the server.",
-    "Pass only the minimum safe data to the UI."
+    "Open the live playground and inspect the API response.",
+    "Remove the private token from the response in the server route.",
+    "Return only the display-safe data the client needs.",
+    "Repeat the request and confirm the token is no longer exposed."
   ],
-  "hint": "NEXT_PUBLIC_ variables are inlined into browser bundles. The fix is architectural, not merely renaming the variable.",
-  "expected": "The browser receives display data only; private credentials remain in server runtime configuration.",
-  "verify": "Inspect the client bundle and source imports; confirm no private token is included."
+  "hint": "A server-only route is still an HTTP boundary: every field in its response is sent to the caller.",
+  "expected": "The route returns the app's display-safe name without including a token-like value.",
+  "verify": "Submit another request in the playground and confirm the JSON response contains no token field."
 };
 
 ## What you'll learn
@@ -28,12 +28,17 @@ A Server Component can call a service or upstream API without exposing private c
 
 Caching and revalidation affect whether users see fresh data. Decide based on the data's requirements rather than relying on assumptions.
 
+### Keep private data out of responses
+
+Server-side code can use private credentials to fetch trusted data, but an API response is visible to its caller. Return only the fields the UI needs; never include credentials in JSON sent to the browser.
+
 ## Walkthrough
 
 1. Inspect lib/services/task-service.ts.
 2. Identify where data access is separated from UI code.
 3. Review .env.example and distinguish public from private variables.
 4. Never prefix a secret with NEXT_PUBLIC_.
+5. Open the [server data fetching playground](/server-data-fetching) and inspect what the practice route returns.
 
 ### Code walkthrough: `lib/services/task-service.ts`
 

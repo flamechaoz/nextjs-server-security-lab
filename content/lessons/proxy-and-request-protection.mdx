@@ -1,39 +1,43 @@
 export const lesson = {
   "title": "Use Proxy without over-trusting it",
-  "summary": "Understand request interception and why sensitive operations still need authorization.",
-  "debugTitle": "A protected API is skipped by the matcher",
-  "debugScenario": "The request matcher excludes an API path, so a redirect-only Proxy check never runs for it. Fix the assumptions: protect the sensitive operation in the route/service and correct the matcher if the early gate is needed.",
+  "summary": "Observe how Proxy gates, forwards, redirects, and rewrites requests—and why handlers still need their own checks.",
+  "debugTitle": "Trace the request through Proxy and the handler",
+  "debugScenario": "Use your Module 9 session to compare requests with and without a cookie, then try Proxy continue, redirect, and rewrite actions. The Proxy only checks for cookie presence and the practice handler lacks its own session check, so test a fabricated cookie and explain why an early Proxy gate cannot be the only protection.",
   "debugTasks": [
-    "Inspect the matcher and list the routes it covers.",
-    "Request the sensitive endpoint directly.",
-    "Enforce authentication and authorization in the handler/service.",
-    "Update the matcher only as an additional layer."
+    "Open the playground signed out and observe Proxy reject the request before the handler runs.",
+    "Sign in through Module 9 and observe the request pass through Proxy to the handler.",
+    "Try continue, redirect, and rewrite and compare their response paths.",
+    "Send a fabricated cookie with curl and observe that cookie presence is not session validation.",
+    "Add an independent session check to the Route Handler and keep Proxy as an early gate."
   ],
-  "hint": "Proxy is not a substitute for verifying access at the protected data operation.",
-  "expected": "Direct requests to protected endpoints remain secure even if an early request check is bypassed.",
-  "verify": "Test the endpoint directly with and without a valid session."
+  "hint": "Proxy can make an early routing decision and attach request context, but a cookie's presence does not prove it is valid. The Route Handler must verify the session itself before returning protected data.",
+  "expected": "Requests without a cookie are blocked by Proxy; requests with any cookie can continue, redirect, or rewrite; adding handler-level session validation blocks fabricated cookies.",
+  "verify": "Compare requests with no cookie, a real Module 9 cookie, and a fabricated cookie; exercise all three Proxy actions and verify the Route Handler checks the actual session."
 };
 
 ## What you'll learn
 
 - Explain the purpose of Proxy.
-- Match paths intentionally.
+- Observe request forwarding, redirects, rewrites, and matcher coverage.
+- Pass trusted request context to a handler.
 - Keep authorization close to protected data.
 
 ### Proxy is an early gate
 
-Proxy can perform lightweight redirects and request checks before a route continues. It is useful for coarse navigation and request policy.
+Proxy runs before matched routes. It can make lightweight request checks, redirect users, rewrite a request to another internal destination, or forward it with request headers. In this lab, the matcher covers `/api/debug/lesson-13` and its nested paths. The playground lets you observe these outcomes without leaving the activity page.
 
 ### It is not the whole security model
 
-A request may reach a handler through different paths or runtime contexts. Verify identity and permissions in the protected operation itself. Current Next.js versions use proxy.ts; older projects may use middleware.ts.
+A cookie-presence check is not authentication: clients can invent cookie values. This lab's Proxy rejects requests with no Module 9 cookie, but accepts a fabricated value. The practice handler also omits session validation, so add that check before returning protected data. Current Next.js versions use proxy.ts; older projects may use middleware.ts.
 
 ## Walkthrough
 
-1. Inspect proxy.ts if present, or compare the middleware.ts convention for older versions.
-2. Review which paths are matched.
-3. Check that protected route handlers still verify access.
-4. Avoid putting database-heavy authorization logic in a request interceptor.
+1. Inspect proxy.ts and review the matcher.
+2. Use the playground signed out, then sign in through Module 9 and retry.
+3. Compare the continue, redirect, and rewrite outcomes.
+4. Send a fabricated cookie (for example, `curl -H 'Cookie: next-lab-demo-session=fake' ...`) and observe that Proxy accepts it.
+5. Check that the Route Handler validates the session rather than trusting Proxy alone.
+5. Avoid putting database-heavy authorization logic in Proxy.
 
 ### Code walkthrough: `proxy.ts`
 

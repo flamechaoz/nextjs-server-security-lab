@@ -1,46 +1,118 @@
 export const lesson = {
   "title": "Authenticate the requester",
-  "summary": "Understand sessions, cookies, and the difference between identity and permission.",
-  "debugTitle": "A request can impersonate another user",
-  "debugScenario": "The endpoint trusts a userId field sent by the client instead of verifying a session. Change the flow so identity comes from the server-verified session.",
+  "summary": "Authenticate with an external identity provider, establish a secure app session, and make authenticated server-to-server calls.",
+  "debugTitle": "Create and inspect a server-side session",
+  "debugScenario": "Use the interactive login form to create a demo session, inspect the HttpOnly cookie policy and session identity, then sign out and verify the session is revoked.",
   "debugTasks": [
-    "Inspect the source of the user ID.",
-    "Remove trust in userId from the request body.",
-    "Require a verified session before protected work.",
-    "Test both signed-out and signed-in cases."
+    "Submit a username through the login form.",
+    "Inspect the returned demo user and the session cookie attributes.",
+    "Verify the session section reports the authenticated user without exposing the cookie value.",
+    "Sign out and confirm the session is no longer active."
   ],
-  "hint": "Anything supplied by the browser can be modified. Derive identity from the verified session, not from submitted form data.",
-  "expected": "Unauthenticated requests receive HTTP 401 and cannot trigger protected operations.",
-  "verify": "Write tests for no session and a valid session; assert the service is not called when signed out."
+  "hint": "The browser can read neither the HttpOnly session cookie nor its opaque ID. Ask the server to inspect the cookie and return only safe session details.",
+  "expected": "Login creates a server-side demo session and an HttpOnly cookie; logout revokes the session and clears the cookie.",
+  "verify": "Log in, refresh the session status, then log out and refresh again. Inspect cookie attributes in browser developer tools."
 };
 
 ## What you'll learn
 
 - Distinguish authentication from authorization.
-- Explain secure session-cookie flags.
-- Verify identity on the server for protected actions.
+- Integrate a federated identity provider or an external authentication API.
+- Exchange a verified external identity for an application session.
+- Keep provider tokens server-side and use them for authenticated API calls.
+- Understand where an Axios interceptor fits in a Next.js backend-for-frontend.
 
 ### Authentication answers who
 
-A protected endpoint must establish the current identity from a trusted session or token. A user ID supplied in the request body is not proof of identity.
+A protected endpoint must establish the current identity from a trusted session or token. A user ID supplied in the request body or query string is not proof of identity.
+
+### Choose the external authentication flow
+
+The identity provider and protocol determine how the user authenticates; the application session determines how your Next.js app remembers that user on later requests.
+
+**Azure SAML federation:** SAML is generally a browser redirect-and-post flow, not a JSON login endpoint. Configure the Next.js application (or a dedicated identity broker) as a SAML Service Provider. The browser is redirected to Microsoft Entra ID (formerly Azure AD), then the identity provider posts a SAML response to the application's Assertion Consumer Service (ACS). The server-side SAML library must validate the response signature and the expected issuer, audience, recipient, time window, `InResponseTo`, and replay status before using its identity claims. Map the validated subject to an internal user, then establish the app's own session. Do not accept a SAML assertion from arbitrary client JSON or treat decoding XML as validation.
+
+**Custom Spring Boot authentication API:** the browser submits credentials to a Next.js server route, which calls the trusted Spring Boot authentication endpoint over HTTPS. The server validates the API response and any returned access token (signature or introspection, issuer, audience, expiry, and intended scopes as applicable), maps the subject to an app user, and creates an application session. Keep client secrets and service credentials on the server. Prefer a standard authorization-code/OIDC flow when the provider supports it instead of building a password-forwarding protocol.
+
+In both cases, avoid making the browser responsible for holding a reusable provider access or refresh token. A stable internal user ID and a small set of necessary claims are usually enough for the app session; do not persist the full provider response by default.
+
+### Establish an application session
+
+After the provider has been validated, create a random, unguessable session identifier and store the session record on the server (for example, in a database or shared cache). A session record can contain the internal user ID, authentication time, expiry, and—only if needed for downstream calls—encrypted provider tokens and their expiry. Set only the opaque session identifier in a cookie:
+
+```ts
+// Illustrative server-side flow; sessionStore and provider integration
+// are application-specific.
+const session = await sessionStore.create({
+  userId: user.id,
+  expiresAt,
+  providerAccessToken: encryptedAccessToken,
+});
+
+cookieStore.set("__Host-app-session", session.id, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
+  path: "/",
+  expires: expiresAt,
+});
+```
+
+Use a production session library or a well-reviewed implementation rather than inventing session cryptography. Rotate the session ID after authentication and privilege changes; enforce idle and absolute expiry; revoke the server-side record at logout; and consider token refresh, revocation, and account disablement. The `__Host-` cookie prefix requires `Secure`, `Path=/`, and no `Domain`; use a deployment-appropriate cookie name and flags for local HTTP development.
+
+On each protected request, read the cookie on the server, load and validate the session, and derive the user identity from that session. A missing, expired, or revoked session should fail closed with HTTP 401. Authorization remains a separate check: a valid session alone does not grant access to every resource.
 
 ### Cookie protections
 
-Session cookies commonly use HttpOnly, Secure in HTTPS deployments, and an appropriate SameSite policy. These attributes help but do not replace authorization or CSRF analysis.
+`HttpOnly` prevents JavaScript from reading the cookie; `Secure` restricts it to HTTPS; and `SameSite` helps reduce cross-site cookie sending. These attributes do not replace authorization or a CSRF strategy for cookie-authenticated state changes. Also avoid logging cookies, assertions, authorization headers, or raw provider responses.
+
+### Centralized Axios for downstream APIs
+
+In a Next.js app using a backend-for-frontend (BFF), the browser calls same-origin Next.js routes with its session cookie. Those server routes read the session and call Spring Boot or another upstream API. A server-only Axios instance can centralize the outbound bearer-token header:
+
+```ts
+// Illustrative pattern. Keep this module server-only.
+import "server-only";
+import axios from "axios";
+import { getCurrentSession } from "@/lib/session";
+
+export const upstreamApi = axios.create({
+  baseURL: process.env.UPSTREAM_API_URL,
+  timeout: 10_000,
+});
+
+upstreamApi.interceptors.request.use(async (config) => {
+  const session = await getCurrentSession();
+  if (!session) {
+    throw new Error("Unauthenticated");
+  }
+
+  // Resolve this from the server-side session/token store; never from
+  // browser-controlled headers or query parameters.
+  const accessToken = await getUpstreamAccessToken(session);
+  config.headers.set("Authorization", ["Bearer", accessToken].join(" "));
+  return config;
+});
+```
+
+This is a pattern, not drop-in code for this lab: `axios`, `@/lib/session`, and `getUpstreamAccessToken` are not currently configured in this project. Before using it, validate the configured upstream base URL, avoid forwarding credentials to arbitrary URLs or redirects, set timeouts, and ensure logs redact authorization headers. Create the client once only when its configuration is request-independent; the interceptor must resolve the current session per request and must not keep a user's token in mutable global state.
+
+Do **not** put an access token in browser `localStorage`, a `NEXT_PUBLIC_` variable, or a browser-global Axios default. An `HttpOnly` cookie is intentionally unreadable to client JavaScript. Browser Axios calls to the app's own routes should rely on the same-origin session cookie; the server route then authenticates to the upstream API. An Axios interceptor centralizes outbound transport credentials, but it does not replace session validation or per-resource authorization.
 
 ## Walkthrough
 
-1. Review the authentication boundary chosen for the project.
-2. Identify how a protected route obtains the current user.
-3. Check session expiration and cookie settings.
-4. Ensure client-provided user IDs are never treated as proof of identity.
+1. Identify whether the upstream provider uses SAML federation, OIDC, or a custom server API; do not mix their callback and token-validation rules.
+2. Trace the provider callback or server-to-server login response and identify where it is cryptographically validated.
+3. Follow the mapping from provider subject to internal user and server-side session creation.
+4. Check how a protected route loads identity from the session and how expiry/logout revoke it.
+5. Trace an authenticated downstream call through the server-only Axios client; confirm the browser never receives the upstream token.
+6. Ensure client-provided user IDs are never treated as proof of identity and authorization is checked for each protected resource.
 
-### Code walkthrough: `lib/auth.ts`
+### Code walkthrough: current practice route
 
 ```tsx
-// Pseudocode: use your trusted auth provider.
-const session = await auth();
-if (!session?.user?.id) {
-  return Response.json({ error: "Unauthorized" }, { status: 401 });
-}
+// app/api/debug/lesson-09/route.ts intentionally trusts userId from the URL.
+// Replace this source of identity with your server-side session lookup.
 ```
+
+The lab uses a process-local in-memory session store to make the login/session lifecycle interactive. It is a teaching demo only: production sessions require a shared persistent store and an actual external identity-provider integration.

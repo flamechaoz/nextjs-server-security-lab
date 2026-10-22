@@ -1,19 +1,19 @@
-# Debugging Lab 04: Server-only code and data fetching
+# Debugging Lab 04: Server data and response boundaries
 
 **Estimated time:** 15–25 minutes  
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A developer accidentally exposes a secret-like value through a public environment variable or client prop. Remove the exposure and explain how the server should call the upstream service instead.
+The practice API route includes a token-like value in its JSON response. Although the route runs on the server, the response is delivered to the browser and exposes every included field.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/server-data-fetching` and submit a request; inspect the JSON response.
+3. Open `app/api/debug/lesson-04/route.ts` and trace the route's response fields.
+4. Remove the token-like field while keeping the display-safe app name.
+5. Submit the request again and confirm the response no longer contains the token.
+6. Run the relevant test(s), then verify the response in the playground.
 
 ## Hints (open one at a time)
 

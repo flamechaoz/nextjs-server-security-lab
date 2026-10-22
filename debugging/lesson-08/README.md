@@ -1,19 +1,19 @@
-# Debugging Lab 08: Service layers and data access
+# Debugging Lab 08: Use the shared service layer
 
 **Estimated time:** 15–25 minutes  
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-Business logic is duplicated inside a route handler. Move it to a service function and add a focused unit test without coupling the test to NextResponse.
+The practice task-list route returns a hard-coded empty array in a `tasks` field. The real task API uses the shared service and returns a `data` array plus a `count`. Update the practice route to use the service so task retrieval and response behavior stay consistent.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/service-layer-design` and compare the practice response with `/api/tasks`.
+3. Inspect `app/api/debug/lesson-08/route.ts` and `lib/services/task-service.ts`.
+4. Replace the hard-coded response with a call to the shared `listTasks()` service.
+5. Return the same `{ data, count }` response contract as `/api/tasks`.
+6. Refresh the playground and confirm both endpoints return equivalent task data.
 
 ## Hints (open one at a time)
 

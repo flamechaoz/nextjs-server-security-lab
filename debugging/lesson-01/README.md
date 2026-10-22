@@ -4,7 +4,7 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-The endpoint returns the wrong message and status. Find the actual GET handler, fix its JSON response, and verify the response in the browser or curl.
+The practice endpoint `/api/debug/lesson-01` returns the wrong message and status. Compare the exercise source at `debugging/lesson-01/broken-route.ts` with `app/api/hello/route.ts`, fix the exercise response, and verify it in the browser or curl.
 
 ## Your mission
 

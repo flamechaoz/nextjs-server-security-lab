@@ -4,16 +4,16 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A fake API key is rendered into a client component. Remove it from client-visible code, move the call to the server, and check the browser bundle/props for leakage.
+The practice Route Handler returns a token-like value in its JSON response. The route runs on the server, but the response is delivered to the browser. Remove the private field and return only display-safe data.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/secrets-and-server-boundaries` and fetch the practice response.
+3. Inspect `app/api/debug/lesson-11/route.ts` and trace the token-like field into the response body.
+4. Remove the private field while preserving the safe app configuration.
+5. Fetch again and verify that the response contains no token field.
+6. Explain why server-side execution does not make response data private, and how this differs from a client-bundle leak.
 
 ## Hints (open one at a time)
 

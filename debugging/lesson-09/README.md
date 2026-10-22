@@ -4,16 +4,16 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A protected handler trusts a userId supplied in the JSON body. Change the design so identity comes from a verified server-side session; write down the expected 401 behavior.
+Use the interactive login form to create a demo session. Inspect the safe session details and cookie policy, then sign out and verify the session is revoked.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/authentication-sessions` and submit a username.
+3. Inspect the displayed user and cookie attributes; notice the cookie value is not exposed to JavaScript.
+4. Refresh the session status and confirm the server recognizes the same session.
+5. Sign out, then refresh the session status and confirm it is inactive.
+6. Inspect `app/api/debug/lesson-09/route.ts` and `lib/demo-session.ts` to trace cookie issuance, lookup, and revocation.
 
 ## Hints (open one at a time)
 

@@ -2,7 +2,33 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import type { Lesson } from "@/lib/curriculum";
 import { lessons, modules } from "@/lib/curriculum";
+
+function LessonActivityLinks({ lesson, completed, showModule = false }: { lesson: Lesson; completed: boolean; showModule?: boolean }) {
+  return (
+    <div className="lesson-activity-links">
+      <Link href={`/learn/${lesson.slug}`} className="lesson-row">
+        <span className={completed ? "row-number done" : "row-number"}>
+          {completed ? "✓" : String(lesson.id).padStart(2, "0")}
+        </span>
+        <span className="row-copy">
+          <strong>{lesson.title}</strong>
+          <small>{showModule ? `${lesson.module} · ` : ""}{lesson.summary}</small>
+        </span>
+        <span className="row-duration">{lesson.duration}</span>
+        <span className="row-arrow">→</span>
+      </Link>
+      <Link
+        href={`/learn/${lesson.slug}?mode=debug#debug`}
+        className="lesson-debug-link"
+        aria-label={`Start debugging: ${lesson.title}`}
+      >
+        Debug this chapter <span aria-hidden="true">↗</span>
+      </Link>
+    </div>
+  );
+}
 
 export default function CurriculumDashboard() {
   const [completed, setCompleted] = useState<number[]>([]);
@@ -173,31 +199,12 @@ export default function CurriculumDashboard() {
               {filtered.length} chapter{filtered.length === 1 ? "" : "s"} found
             </p>
             {filtered.map((lesson) => (
-              <Link
-                href={`/learn/${lesson.slug}`}
-                className="lesson-row"
+              <LessonActivityLinks
                 key={lesson.id}
-              >
-                <span
-                  className={
-                    completed.includes(lesson.id)
-                      ? "row-number done"
-                      : "row-number"
-                  }
-                >
-                  {completed.includes(lesson.id)
-                    ? "✓"
-                    : String(lesson.id).padStart(2, "0")}
-                </span>
-                <span className="row-copy">
-                  <strong>{lesson.title}</strong>
-                  <small>
-                    {lesson.module} · {lesson.summary}
-                  </small>
-                </span>
-                <span className="row-duration">{lesson.duration}</span>
-                <span className="row-arrow">→</span>
-              </Link>
+                lesson={lesson}
+                completed={completed.includes(lesson.id)}
+                showModule
+              />
             ))}
           </div>
         ) : (
@@ -230,29 +237,11 @@ export default function CurriculumDashboard() {
                   </div>
                   <div className="module-lessons">
                     {group.map((lesson) => (
-                      <Link
-                        href={`/learn/${lesson.slug}`}
-                        className="lesson-row"
+                      <LessonActivityLinks
                         key={lesson.id}
-                      >
-                        <span
-                          className={
-                            completed.includes(lesson.id)
-                              ? "row-number done"
-                              : "row-number"
-                          }
-                        >
-                          {completed.includes(lesson.id)
-                            ? "✓"
-                            : String(lesson.id).padStart(2, "0")}
-                        </span>
-                        <span className="row-copy">
-                          <strong>{lesson.title}</strong>
-                          <small>{lesson.summary}</small>
-                        </span>
-                        <span className="row-duration">{lesson.duration}</span>
-                        <span className="row-arrow">→</span>
-                      </Link>
+                        lesson={lesson}
+                        completed={completed.includes(lesson.id)}
+                      />
                     ))}
                   </div>
                   <div className="module-card-foot">

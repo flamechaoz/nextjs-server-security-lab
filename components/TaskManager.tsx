@@ -13,6 +13,7 @@ export default function TaskManager() {
     setMessage(`${result.count} task(s) loaded`);
   }
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTasks().catch((error) => setMessage(error.message));
   }, []);
   async function addTask(event: FormEvent<HTMLFormElement>) {

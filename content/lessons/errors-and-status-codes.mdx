@@ -2,16 +2,16 @@ export const lesson = {
   "title": "Return predictable errors",
   "summary": "Handle malformed input, missing resources, and unexpected failures safely.",
   "debugTitle": "A missing task returns HTTP 500",
-  "debugScenario": "The endpoint treats a missing record as an unexpected server error. Distinguish a valid request for a nonexistent task from an actual server failure.",
+  "debugScenario": "The practice endpoint accepts a task ID, but reports an unknown task as an unexpected server error. Request an ID that does not exist and correct the status code for this expected not-found condition.",
   "debugTasks": [
-    "Request an ID that does not exist.",
-    "Trace the not-found branch after the lookup.",
-    "Return a 404 with a stable error body.",
-    "Keep unexpected exceptions separate."
+    "Open the live playground and request the prefilled unknown task ID.",
+    "Inspect app/api/debug/lesson-07/route.ts and trace its not-found branch.",
+    "Return HTTP 404 with the existing stable error body.",
+    "Request task ID 1 and confirm the successful lookup still returns HTTP 200."
   ],
   "hint": "A successful lookup that returns no record is an expected not-found condition, not an internal server error.",
   "expected": "Unknown IDs return HTTP 404 and a safe error message.",
-  "verify": "Request /api/tasks/999 and check both status and JSON."
+  "verify": "Request /api/debug/lesson-07?id=999 and confirm HTTP 404; request id=1 and confirm HTTP 200."
 };
 
 ## What you'll learn
@@ -34,6 +34,7 @@ Unexpected exceptions should be logged appropriately on the server while clients
 2. Try malformed JSON, invalid IDs, and unknown IDs.
 3. Compare status codes and response shapes.
 4. Check that internal stack traces are not returned.
+5. Use the [errors and status codes playground](/errors-and-status-codes) to compare an existing ID with a missing one.
 
 ### Code walkthrough: `app/api/tasks/[id]/route.ts`
 

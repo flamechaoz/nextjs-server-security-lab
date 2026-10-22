@@ -1,17 +1,18 @@
 export const lesson = {
   "title": "Choose the right component boundary",
   "summary": "Separate server-rendered data from client-side interaction.",
-  "debugTitle": "An interactive button cannot use state",
-  "debugScenario": "A learner removed the client directive from a component that calls useState and uses an onClick handler. Diagnose the component boundary and fix it without converting the whole application to client rendering.",
+  "debugTitle": "Restore the missing client boundary",
+  "debugScenario": "The ClickCounter exercise uses useState and an onClick handler but has no client boundary. First open the live server/client demo and verify the counter works. Then compare its component files with the broken exercise, restore the client directive in the exercise, and explain why the page itself does not need that directive.",
   "debugTasks": [
-    "Find the component that uses useState or onClick.",
-    "Check whether it declares the client boundary.",
-    "Restore the directive at the top of the relevant module.",
-    "Run the page and verify the interaction works."
+    "Open the live demo and click Increment counter; confirm the displayed count changes.",
+    "Inspect app/component-boundaries/page.tsx and components/BoundaryCounter.tsx. Identify which component is the Server Component and which is the Client Component.",
+    "Open debugging/lesson-02/broken-component.tsx and locate the useState call and onClick handler.",
+    "Add the client boundary directive as the first statement in the broken component file.",
+    "Compare the repaired exercise with components/BoundaryCounter.tsx and explain why app/component-boundaries/page.tsx needs no client directive."
   ],
-  "hint": "The directive must be the first statement in the client module, before imports.",
-  "expected": "The interactive component compiles and responds to clicks while the surrounding page can remain a Server Component.",
-  "verify": "Run npm run dev, open the page that renders the component, and click the button."
+  "hint": "The live page is a Server Component because App Router pages are server-rendered by default. Only the module that needs state and event handlers starts with \"use client\".",
+  "expected": "The live demo's server-rendered page stays a Server Component, the counter remains interactive, and the broken ClickCounter exercise begins with \"use client\" before its imports.",
+  "verify": "Open /component-boundaries and click Increment counter. Then inspect the first line of debugging/lesson-02/broken-component.tsx and compare both component directives."
 };
 
 ## What you'll learn
@@ -26,16 +27,17 @@ Components in the App Router are Server Components unless marked with the use cl
 
 ### Client for interaction
 
-Use Client Components for state, effects, event handlers, and browser APIs. Keep the client boundary as small as practical.
+Use Client Components for state, effects, event handlers, and browser APIs. Put `"use client"` before imports in the client module and keep the boundary as small as practical. Server Components are the default in the App Router; they do not need a `"use server"` directive.
 
 ## Walkthrough
 
-1. Open app/page.tsx and identify the server-rendered page.
-2. Inspect components/TaskManager.tsx for interactive behavior.
-3. Find its use client directive and explain why it is needed.
-4. Move no secrets or server-only dependencies into a client component.
+1. Open `/component-boundaries` and click the counter.
+2. Inspect app/component-boundaries/page.tsx and identify the server-rendered content and props.
+3. Inspect components/BoundaryCounter.tsx and explain why its `"use client"` directive is needed.
+4. Notice that the Server Component can pass rendered children into the Client Component without moving the whole page to the client.
+5. Keep server-only work in the Server Component and pass only the values needed by the Client Component.
 
-### Code walkthrough: `components/TaskManager.tsx`
+### Code walkthrough: `components/BoundaryCounter.tsx`
 
 ```tsx
 "use client";

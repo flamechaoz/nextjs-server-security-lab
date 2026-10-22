@@ -4,16 +4,16 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A missing task returns 500 or a successful response. Fix the handler so invalid IDs, missing records, and successful deletion have appropriate statuses.
+The lesson's practice API accepts an `id` query parameter. Task `1` exists, but an unknown task ID is incorrectly reported as HTTP 500. A missing resource is an expected condition and should return HTTP 404.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/errors-and-status-codes` and request the prefilled unknown task ID.
+3. Open `app/api/debug/lesson-07/route.ts` and trace the query parameter to the not-found response.
+4. Change the not-found status to HTTP 404 without changing its safe error body.
+5. Submit again and confirm the missing ID returns HTTP 404.
+6. Request task ID `1` and confirm the existing-task response remains HTTP 200.
 
 ## Hints (open one at a time)
 

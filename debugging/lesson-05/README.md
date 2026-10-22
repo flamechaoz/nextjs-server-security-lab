@@ -4,7 +4,7 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-The handler treats the string ID as a number without validating it, or forgets to await params. Fix parsing and verify /api/tasks/nope returns 400.
+The practice route `/api/debug/tasks/[id]` ignores its route parameter and always returns task 1. Await `context.params`, use the requested ID in the response, and verify that `/api/debug/tasks/1` and `/api/debug/tasks/2` return different IDs.
 
 ## Your mission
 

@@ -1,24 +1,29 @@
 export const lesson = {
   "title": "Authorize every resource access",
-  "summary": "Prevent users from reading or changing records they do not own.",
+  "summary": "Build on Module 9 authentication by checking whether the signed-in user may access each resource.",
   "debugTitle": "Changing the ID exposes another user's task",
-  "debugScenario": "A signed-in user can change /api/tasks/1 to /api/tasks/2 and read another person's task. Add resource-level authorization before returning or modifying the record.",
+  "debugScenario": "Use the session created in Module 9 to authenticate, then request task IDs from this module's API. The route checks that you are signed in but returns another user's task because it does not check ownership.",
   "debugTasks": [
-    "Reproduce the issue with two test users.",
-    "Find the resource lookup and mutation path.",
-    "Check ownership before returning or changing data.",
-    "Add a regression test for cross-user access."
+    "Sign in through the Module 9 session playground.",
+    "Request task 1 and task 2 from the Module 10 playground.",
+    "Confirm the API rejects requests without a session but leaks task 2 to a signed-in user.",
+    "Compare the session user ID with the task owner and deny cross-user access."
   ],
-  "hint": "The check must compare the authenticated user's ID with the owner recorded on the resource. Hiding the link is not enough.",
-  "expected": "Owners can access their own tasks; other users cannot read or mutate them.",
-  "verify": "Use tests to assert that denied requests return 403 or a deliberate 404 policy and leave data unchanged."
+  "hint": "Module 9 proves who the requester is. For each task, compare that session's userId with the task's ownerId before returning or changing the resource.",
+  "expected": "Requests without a valid Module 9 session receive HTTP 401; signed-in users can read their own task but cannot read another user's task.",
+  "verify": "With no session, request either ID and confirm 401. After logging in through Module 9, task 1 should succeed and task 2 should return 403 (or a deliberate 404 policy)."
 };
 
 ## What you'll learn
 
 - Explain IDOR and broken object-level authorization.
+- Distinguish Module 9 authentication (who is signed in) from authorization (what that user may access).
 - Check resource ownership on the server.
 - Test both allowed and denied access.
+
+### Authentication is not authorization
+
+Module 9's session establishes the authenticated identity. Module 10 uses that same server-verified session to make an access decision for each resource. A valid session does not grant access to every task, and a task ID supplied by the browser is never proof of ownership.
 
 ### A valid ID is not permission
 
@@ -30,17 +35,8 @@ Middleware can help with coarse routing, but ownership checks belong close to th
 
 ## Walkthrough
 
-1. Identify every task operation that should be private.
-2. Trace the current user and the target resource through the service.
-3. Add an ownership check before reading or mutating protected data.
-4. Test owner, different user, and missing record cases.
-
-### Code walkthrough: `lib/services/task-service.ts`
-
-```tsx
-const task = findTask(taskId);
-if (!task || task.ownerId !== currentUser.id) {
-  return notFoundOrForbidden();
-}
-// Only mutate after authorization succeeds.
-```
+1. Sign in at `/authentication-sessions` to establish the Module 9 demo session.
+2. Open `/authorization-and-ownership` and try both task IDs.
+3. Trace how the API obtains the user from the shared session cookie.
+4. Add an ownership check before returning the task.
+5. Test signed-out, owner, different-owner, and missing-resource cases.

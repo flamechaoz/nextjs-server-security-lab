@@ -1,19 +1,19 @@
-# Debugging Lab 06: Request validation with Zod
+# Debugging Lab 06: Trim before validating
 
 **Estimated time:** 15–25 minutes  
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-A handler trusts request.json() and creates a task with a missing title. Add schema validation and a clear 400 response; test both valid and invalid requests.
+The practice API route uses Zod, but a title containing only spaces is accepted as valid. The string has length, but no meaningful characters. Trim it before applying the minimum-length constraint.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/request-validation-with-zod` and submit the prefilled whitespace-only title.
+3. Inspect `app/api/debug/lesson-06/route.ts` and find the Zod schema.
+4. Apply `trim()` before `min(1)` so whitespace-only input is rejected.
+5. Submit again and verify the response changes from HTTP 201 to HTTP 400.
+6. Run the relevant test(s) and explain why trimming must happen before the minimum-length check.
 
 ## Hints (open one at a time)
 

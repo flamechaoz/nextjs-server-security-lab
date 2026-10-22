@@ -4,16 +4,16 @@
 **Mode:** Investigate first; edit only after you can explain the suspected cause.
 
 ## Scenario
-An endpoint accepts an arbitrary redirect URL or constructs an unsafe query. Restrict the input to an allowlist or use parameterized queries, then add a regression test.
+The practice endpoint accepts any `returnTo` value and echoes it as the destination. Use the playground to reproduce an open redirect with an external or protocol-relative URL, then change the handler to allow only a safe local path. The playground displays the proposed destination without navigating there.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Run the app with `npm run dev`.
+2. Open `/common-web-vulnerabilities` and submit `/dashboard`, `https://example.test`, and `//example.test`.
+3. Inspect the returned destination; the playground does not follow it.
+4. Open `app/api/debug/lesson-12/route.ts` and trace `returnTo` into `redirectTo`.
+5. Keep safe local paths and substitute a safe local fallback for external or protocol-relative destinations.
+6. Run the relevant tests and repeat all three playground cases.
 
 ## Hints (open one at a time)
 
