@@ -1,40 +1,39 @@
-# Debugging Lab 14: Jest and test setup
+# Debugging Lab 14: Jest and Arrange–Act–Assert
 
 **Estimated time:** 15–25 minutes  
-**Mode:** Investigate first; edit only after you can explain the suspected cause.
+**Mode:** Editor-based unit testing; edit the test, then run it.
 
 ## Scenario
-A test passes for the wrong reason or the test runner ignores the file. Fix the test name/configuration/assertion and demonstrate a failing test before the fix.
+A test passes for the wrong reason: it asserts a hard-coded `true` value and never calls `canEditTask`. Rewrite the test so it follows Arrange–Act–Assert and a regression in the function makes the test fail.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Open `debugging/lesson-14/broken-test.test.ts` and identify the Arrange, Act, and Assert phases.
+2. Replace the hard-coded result with a call to `canEditTask(userId, ownerId)`.
+3. Keep the existing assertion and confirm it checks the returned value.
+4. Run `pnpm exec jest debugging/lesson-14/broken-test.test.ts --testPathIgnorePatterns="^$"`.
+5. Temporarily change `canEditTask` to return the wrong value, rerun the focused test, and confirm it fails.
 
 ## Hints (open one at a time)
 
-<details><summary>Hint 1: Find the entry point</summary>
-Start from the URL or UI action. App Router route segments map to folders under `app/`; a Route Handler is exported from `route.ts`.
+<details><summary>Hint 1: Find the missing phase</summary>
+The test has setup and an assertion, but the value being asserted is not produced by the function under test.
 </details>
 
-<details><summary>Hint 2: Trace the value</summary>
-Follow the value through each function call. Check its type, validation, and whether asynchronous values are awaited.
+<details><summary>Hint 2: Write the Act step</summary>
+Call `canEditTask` with the arranged `userId` and `ownerId`, then store its return value in `result`.
 </details>
 
-<details><summary>Hint 3: Verify the contract</summary>
-Compare status code, response body, side effects, and failure behavior with the intended contract.
+<details><summary>Hint 3: Verify the test</summary>
+If the implementation returns `false` for the owner case, the assertion should fail. A hard-coded `true` cannot detect that regression.
 </details>
 
 ## Evidence to submit
 - [ ] File(s) changed and why
-- [ ] Reproduction steps and original output
-- [ ] Fix summary
-- [ ] Verification command or request and output
-- [ ] Regression test or explanation of why one is not applicable
+- [ ] Original focused test output
+- [ ] Updated test with separate Arrange, Act, and Assert phases
+- [ ] Verification command and passing output
+- [ ] Mutation result showing the test fails when the implementation is wrong
 
 ## Reference solution
 Only after attempting the lab, compare your approach with `solutions/lesson-14/SOLUTION.md`.

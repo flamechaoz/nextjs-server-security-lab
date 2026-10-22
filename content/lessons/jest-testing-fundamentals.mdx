@@ -1,5 +1,5 @@
 export const lesson = {
-  "title": "Set up and read Jest tests",
+  "title": "Unit testing with Jest",
   "summary": "Understand test structure, assertions, setup, and repeatable test runs.",
   "debugTitle": "The test passes without testing the intended rule",
   "debugScenario": "A test asserts a hard-coded true value and never calls the function. Rewrite it so the real behavior is exercised and a regression would fail the test.",
@@ -11,7 +11,7 @@ export const lesson = {
   ],
   "hint": "A test is only useful if changing the behavior under test can make the assertion fail.",
   "expected": "The test executes the function and fails when its behavior regresses.",
-  "verify": "Run npm test and temporarily invert the function result to confirm the test catches it."
+  "verify": "Run the focused Jest test, temporarily invert canEditTask, and confirm the test fails."
 };
 
 ## What you'll learn
@@ -23,6 +23,40 @@ export const lesson = {
 ### Tests describe behavior
 
 A good test states a behavior, creates the required setup, performs an action, and asserts an observable result. Tests should not depend on execution order.
+
+### Arrange–Act–Assert (AAA)
+
+The Arrange–Act–Assert (AAA) pattern structures unit tests into three distinct, readable steps:
+
+- **Arrange:** Set up the test data, initial conditions, and any mocks or spies the test needs.
+- **Act:** Invoke the function, method, or component under test.
+- **Assert:** Verify the observable result with Jest matchers.
+
+Keeping these phases separate makes a test easier to read and helps show exactly which behavior is being tested. The Act phase should usually be short, ideally a single function call. Assertions should check the result or interaction directly rather than hiding complex logic inside `expect` expressions.
+
+### Jest example using AAA
+
+```tsx
+import { add } from "./math";
+
+test("adds two numbers correctly", () => {
+  // Arrange: set up inputs and initial conditions.
+  const firstNumber = 2;
+  const secondNumber = 3;
+
+  // Act: execute the function under test.
+  const result = add(firstNumber, secondNumber);
+
+  // Assert: check the result with a Jest matcher.
+  expect(result).toBe(5);
+});
+```
+
+### The three phases in practice
+
+- **Arrange:** Initialize variables, mock functions, spies, and other data needed for the test. Put shared setup in Jest's `beforeEach()` or `beforeAll()` hooks when it applies to multiple tests.
+- **Act:** Invoke the actual unit, method, or component under test. Keep this phase focused so the test makes one clear behavioral observation.
+- **Assert:** Use matchers such as `toBe()`, `toEqual()`, and `toHaveBeenCalled()` to validate the behavior. Avoid placing complex logic inside assertions.
 
 ### Choose the right test boundary
 

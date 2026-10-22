@@ -1,40 +1,40 @@
-# Debugging Lab 15: Unit testing business logic
+# Debugging Lab 15: Pure functions, services, and hooks
 
 **Estimated time:** 15–25 minutes  
-**Mode:** Investigate first; edit only after you can explain the suspected cause.
+**Mode:** Editor-based unit testing; edit the tests, then run them.
 
 ## Scenario
-A validator accepts whitespace-only titles or an empty update. Add the missing rule and a test that fails before the change.
+A small test suite passes without proving the intended behavior. One test hard-codes a pure-function result, one ignores the task-service result, and one expects a hook to preserve whitespace even though the hook normalizes it.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Open `debugging/lesson-15/broken-tests.test.ts` and identify the subject under test in each case.
+2. Replace the hard-coded pure-function result with `canEditTask(userId, ownerId)`.
+3. Capture `listTasks("user-1")` and assert that it contains only that owner's tasks; keep `resetTasksForTests()` in `beforeEach()`.
+4. Keep the hook inside `renderHook` and assert the trimmed return value.
+5. Run `pnpm exec jest debugging/lesson-15/broken-tests.test.ts --testPathIgnorePatterns="^$"`.
+6. Temporarily break each subject and confirm its corresponding test fails.
 
 ## Hints (open one at a time)
 
-<details><summary>Hint 1: Find the entry point</summary>
-Start from the URL or UI action. App Router route segments map to folders under `app/`; a Route Handler is exported from `route.ts`.
+<details><summary>Hint 1: Find the missing Act phase</summary>
+The first test sets up IDs but assigns `true` directly. The Act phase must call `canEditTask`.
 </details>
 
-<details><summary>Hint 2: Trace the value</summary>
-Follow the value through each function call. Check its type, validation, and whether asynchronous values are awaited.
+<details><summary>Hint 2: Isolate service state</summary>
+The task service is stateful. Reset it before each test, call `listTasks`, and assert the returned tasks instead of asserting `true`.
 </details>
 
-<details><summary>Hint 3: Verify the contract</summary>
-Compare status code, response body, side effects, and failure behavior with the intended contract.
+<details><summary>Hint 3: Run the hook correctly</summary>
+Use `renderHook(() => useTaskLabel(...))`; the expected current result is the trimmed title.
 </details>
 
 ## Evidence to submit
 - [ ] File(s) changed and why
-- [ ] Reproduction steps and original output
-- [ ] Fix summary
-- [ ] Verification command or request and output
-- [ ] Regression test or explanation of why one is not applicable
+- [ ] Original focused test output
+- [ ] Corrected pure-function, service, and hook assertions
+- [ ] Verification command and passing output
+- [ ] Mutation result showing the tests fail when behavior is wrong
 
 ## Reference solution
 Only after attempting the lab, compare your approach with `solutions/lesson-15/SOLUTION.md`.

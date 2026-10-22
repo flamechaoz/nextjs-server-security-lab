@@ -88,8 +88,12 @@ export default function TaskManager() {
                 </small>
               </div>
             </div>
-            <div className="actions" style={{ marginTop: 0, display: "flex", gap: 8 }}>
+            <div
+              className="actions"
+              style={{ marginTop: 0, display: "flex", gap: 8 }}
+            >
               <button
+                data-testid="toggle-task"
                 className="button primary"
                 onClick={() => toggleTask(task)}
               >

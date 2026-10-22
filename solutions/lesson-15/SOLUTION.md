@@ -2,21 +2,68 @@
 
 ## Intended reasoning
 
-A validator accepts whitespace-only titles or an empty update. Add the missing rule and a test that fails before the change.
+The tests are not connected to the behaviors they claim to cover. A pure-function test asserts a hard-coded value, a service test ignores the service result, and a hook test expects the unnormalized input. Repair the tests at their public boundaries.
 
 ## Suggested approach
 
-1. Reproduce the issue first.
-2. Trace the request or value to the responsible handler/service/component.
-3. Validate external input at the boundary and keep business rules in testable functions.
-4. Return the expected result and a meaningful error for invalid input.
-5. Add a regression test for the exact failure mode.
+1. Run the focused test and inspect which cases pass or fail for the wrong reason.
+2. Arrange IDs, service state, and hook input separately.
+3. Act by calling `canEditTask`, `listTasks`, and `useTaskLabel` through `renderHook`.
+4. Assert the returned boolean, owner-filtered task list, and trimmed label.
+5. Reset task-service state in `beforeEach()`.
+6. Mutate each subject temporarily and confirm its test fails.
+
+## Corrected tests
+
+```tsx
+import { renderHook } from "@testing-library/react";
+import { canEditTask } from "@/lib/task-rules";
+import {
+	createTask,
+	listTasks,
+	resetTasksForTests,
+} from "@/lib/services/task-service";
+
+beforeEach(() => {
+	resetTasksForTests();
+});
+
+it("allows the owner to edit a task", () => {
+	// Arrange
+	const userId = "user-1";
+	const ownerId = "user-1";
+
+	// Act
+	const result = canEditTask(userId, ownerId);
+
+	// Assert
+	expect(result).toBe(true);
+});
+
+it("returns tasks for the requested owner", () => {
+	// Arrange
+	createTask("Private task", "user-2");
+
+	// Act
+	const tasks = listTasks("user-1");
+
+	// Assert
+	expect(tasks).toHaveLength(3);
+	expect(tasks.every((task) => task.ownerId === "user-1")).toBe(true);
+});
+
+it("trims a task label", () => {
+	const { result } = renderHook(() => useTaskLabel("  Secure task  "));
+
+	expect(result.current).toBe("Secure task");
+});
+```
 
 ## Review checklist
-- Does the fix solve the reported bug rather than hide it?
-- Are status codes and response bodies consistent?
-- Are invalid inputs handled safely?
-- Is sensitive data kept out of client-visible output and logs?
-- Would the test fail if the original bug were reintroduced?
+- Does each test call the subject under test?
+- Does each service test isolate mutable state?
+- Does each hook test use a hook-aware renderer?
+- Are assertions based on observable behavior rather than implementation details?
+- Would each test fail if its subject regressed?
 
-**Instructor note:** Some lessons are design/code-review exercises rather than a single one-line patch. Accept alternative solutions when learners justify trade-offs and provide evidence.
+**Instructor note:** This is an editor-based exercise. Accept equivalent tests when they exercise the pure function, service, and hook through their public behavior and include evidence that regressions fail.

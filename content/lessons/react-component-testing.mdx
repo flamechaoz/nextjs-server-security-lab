@@ -1,45 +1,113 @@
 export const lesson = {
   "title": "Test UI behavior accessibly",
-  "summary": "Test what users see and do instead of relying on component internals.",
-  "debugTitle": "The component test cannot find the button",
-  "debugScenario": "A test searches for a CSS class that changed during a refactor. Update it to query by accessible role and name, then verify the user's interaction.",
+  "summary": "Render components with realistic dependencies, query them like a user, and verify visible loading, success, and error states.",
+  "debugTitle": "The component test is coupled to styling",
+  "debugScenario": "A TaskManager test searches for a CSS class that is not part of the component's user-facing contract. Replace it with an accessible query, perform the completion interaction, and assert the visible result.",
   "debugTasks": [
-    "Inspect the failing query.",
-    "Replace implementation-specific selectors with a role/name query.",
-    "Perform the relevant user interaction.",
-    "Assert the visible result."
+    "Inspect the component test and its mocked fetch responses.",
+    "Replace the CSS selector with a button role and accessible name.",
+    "Use userEvent to complete the task.",
+    "Assert the completed status visible to the user."
   ],
-  "hint": "Use getByRole with the button's accessible name when possible.",
-  "expected": "The test remains stable across styling changes and verifies the user-facing behavior.",
-  "verify": "Run the relevant Jest test and confirm it passes without querying a CSS class."
+  "hint": "The task starts open, so its button is named `Complete`. After the mocked PATCH and reload, the visible status should be `Completed` and the button should be named `Reopen`.",
+  "expected": "The test finds the control by role and name, exercises the same interaction a user performs, and verifies the updated visible status.",
+  "verify": "Run the focused component test and confirm it passes after removing the CSS selector."
 };
 
 ## What you'll learn
 
-- Render components in JSDOM.
-- Query by role and accessible name.
-- Test loading, success, and error states.
+- Render a component with JSDOM and mocked network responses.
+- Query controls by accessible role and name.
+- Use userEvent for realistic interactions.
+- Assert loading, success, and error states through visible UI.
+
+### Component tests need a realistic boundary
+
+Render the component with the same props and browser-facing dependencies it uses in the app. For a component that calls `fetch`, mock the network boundary and return the responses the component expects. The test should control the response sequence without reaching a real server.
+
+`TaskManager` loads tasks on mount, sends a `PATCH` request when a user completes a task, and loads the tasks again. That means the test needs an initial `GET` response, a successful `PATCH` response, and a final `GET` response showing the updated task.
 
 ### Prefer user-visible contracts
 
-React Testing Library encourages queries that resemble how a user or assistive technology finds elements, such as roles and accessible names.
+React Testing Library encourages queries that resemble how a user or assistive technology finds elements. Prefer `getByRole` with an accessible name for buttons, links, headings, and form controls. Use `findBy...` when the element appears after asynchronous work, and use `waitFor` when waiting for a state transition.
 
 ### Avoid brittle implementation tests
 
-Tests should usually avoid depending on private state, incidental class names, or component internals. Assert on visible behavior and accessible semantics.
+Do not depend on private state, incidental class names, DOM nesting, or the implementation's fetch helper. A class can change during a redesign while the user's task remains the same. Query the control by the name a user can perceive and assert the text or state that the user can see.
+
+### Use userEvent for interactions
+
+`userEvent` models browser interactions more closely than calling event handlers directly. Set up a user, find the control by its accessible name, click it, and wait for the resulting UI. Keep `fireEvent` for lower-level cases where a specific event is the behavior under test.
+
+### Test loading, success, and failure
+
+Loading text is useful while a request is pending. A successful response should produce the expected content or status. A failed response should produce an accessible, user-visible error. Test the state that matters to the user instead of asserting only that `fetch` was called.
 
 ## Walkthrough
 
-1. Open components/TaskManager.tsx.
-2. Identify the accessible names of interactive controls.
-3. Write a test that renders the component and interacts with it.
-4. Assert the resulting UI, not a private state variable.
+1. Open components/TaskManager.tsx and trace its initial load, task mutation, and reload.
+2. Identify the accessible names of the input and buttons in each state.
+3. Mock the initial `GET`, the `PATCH`, and the final `GET` responses.
+4. Render the component and wait for the task to appear.
+5. Click the `Complete` button through its role and name.
+6. Assert the visible `Completed` status and the request contract.
 
-### Code walkthrough: `components/TaskManager.tsx`
+### Code walkthrough: a complete TaskManager test
 
 ```tsx
-render(<button>Save task</button>);
-expect(
-  screen.getByRole("button", { name: /save task/i })
-).toBeInTheDocument();
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import TaskManager from "@/components/TaskManager";
+
+it("completes a task through the user-facing control", async () => {
+  const task = {
+    id: 1,
+    title: "Write an accessible test",
+    completed: false,
+    ownerId: "demo-user",
+  };
+  const completedTask = { ...task, completed: true };
+
+  // Arrange: control the component's three network responses.
+  const jsonResponse = (body: unknown, status: number) => ({
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  }) as Response;
+  const fetchMock = jest.fn()
+    .mockResolvedValueOnce(
+      jsonResponse({ data: [task], count: 1 }, 200),
+    )
+    .mockResolvedValueOnce(jsonResponse(null, 204))
+    .mockResolvedValueOnce(
+      jsonResponse({ data: [completedTask], count: 1 }, 200),
+    );
+  Object.defineProperty(globalThis, "fetch", {
+    configurable: true,
+    value: fetchMock,
+    writable: true,
+  });
+  const user = userEvent.setup();
+
+  // Act: render, wait for loading to finish, and perform the user action.
+  render(<TaskManager />);
+  await screen.findByText("Write an accessible test");
+  await user.click(screen.getByRole("button", { name: "Complete" }));
+
+  // Assert: verify what the user sees and the important request contract.
+  await waitFor(() =>
+    expect(screen.getByText("Completed")).toBeInTheDocument(),
+  );
+  expect(fetchMock).toHaveBeenCalledWith("/api/tasks/1", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ completed: true }),
+  });
+});
+```
+
+The test does not query `.button`, `.primary`, or `.task`. Those classes can change without changing the behavior. The accessible button name and the visible `Completed` status are the stable contract.
+
+```tsx
+expect(screen.getByRole("button", { name: "Complete" })).toBeInTheDocument();
 ```

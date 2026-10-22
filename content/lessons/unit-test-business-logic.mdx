@@ -1,44 +1,107 @@
 export const lesson = {
-  "title": "Test pure functions and services",
-  "summary": "Cover boundaries, invalid values, and expected failures without a running server.",
-  "debugTitle": "A boundary case slips through",
-  "debugScenario": "A validation helper accepts an empty string after trimming. Add the missing boundary test and fix the rule so invalid input is rejected.",
+  "title": "Test pure functions, services, and hooks",
+  "summary": "Choose the right unit boundary, isolate stateful services, and test hook behavior without relying on implementation details.",
+  "debugTitle": "The tests pass without proving the behavior",
+  "debugScenario": "A small test suite uses hard-coded assertions for a pure function and a service, while a hook test expects the wrong normalized value. Repair the tests so each one exercises its subject and checks an observable result.",
   "debugTasks": [
-    "Write a test for whitespace-only input.",
-    "Run it and confirm it fails before the fix.",
-    "Correct the validation or business rule.",
-    "Run the full test suite."
+    "Replace the hard-coded pure-function result with a call to canEditTask.",
+    "Capture and assert the task service result after resetting shared state.",
+    "Use renderHook to test the hook's trimmed return value.",
+    "Run the focused test and confirm each assertion would fail after a regression."
   ],
-  "hint": "Test the normalized value, not only the raw input. Whitespace may become an empty string after trimming.",
-  "expected": "The invalid boundary case is rejected, and existing valid cases still pass.",
-  "verify": "Run npm test and review the test output for the new case."
+  "hint": "A useful test must call the subject and assert its returned value. Reset mutable service state between tests, and use renderHook for a hook that calls React hooks.",
+  "expected": "The pure function, service, and hook tests all execute their subjects and assert meaningful results.",
+  "verify": "Run the focused Jest test, then temporarily break each subject in turn and confirm its test fails."
 };
 
 ## What you'll learn
 
-- Test pure business rules.
-- Cover boundary and negative cases.
-- Mock external dependencies selectively.
+- Test pure functions with Arrange–Act–Assert.
+- Isolate services that read or mutate state.
+- Test custom hooks through their observable return values.
 
-### Test behavior, not line count
+### Start with the unit boundary
 
-A useful test suite covers meaningful inputs and outputs, including boundaries and failure cases. High line coverage alone does not prove the code is correct.
+A unit is the smallest behavior you can exercise with a useful, stable assertion. A pure function is usually the simplest unit: provide inputs, call it, and inspect the return value. A service may coordinate state or dependencies, so reset its state between tests and mock only external boundaries. A hook is a function whose behavior depends on React's hook runtime; render it with a hook test utility instead of calling it as an ordinary function.
 
-### Keep units isolated
+### Test pure functions with AAA
 
-Pure functions need no mocks. For services that use external systems, inject dependencies or mock the boundary rather than mocking every internal call.
-
-## Walkthrough
-
-1. Open lib/task-rules.test.ts and the validation schema tests.
-2. Add empty, boundary, and invalid input cases.
-3. Use clear test names that describe behavior.
-4. Avoid dependence on test execution order.
-
-### Code walkthrough: `lib/task-rules.test.ts`
+Pure functions do not need a server, browser, or mock. Keep the setup, call, and assertion visible so a regression cannot hide behind a hard-coded value.
 
 ```tsx
 it("rejects a different user", () => {
-  expect(canEditTask("user-2", "user-1")).toBe(false);
+  // Arrange
+  const userId = "user-2";
+  const ownerId = "user-1";
+
+  // Act
+  const allowed = canEditTask(userId, ownerId);
+
+  // Assert
+  expect(allowed).toBe(false);
+});
+```
+
+### Test services at their public boundary
+
+Services often read a repository, mutate in-memory state, or coordinate several operations. Test the service's public result rather than its private implementation. Reset shared state in `beforeEach()` so one test cannot change the next test's result.
+
+```tsx
+beforeEach(() => {
+  resetTasksForTests();
+});
+
+it("lists tasks for one owner", () => {
+  // Arrange
+  createTask("Private task", "user-2");
+
+  // Act
+  const tasks = listTasks("user-1");
+
+  // Assert
+  expect(tasks).toHaveLength(3);
+  expect(tasks.every((task) => task.ownerId === "user-1")).toBe(true);
+});
+```
+
+When a service depends on a database, network client, or clock, inject that dependency and mock the boundary. Do not mock the service method you are trying to test.
+
+### Test hooks through rendered behavior
+
+Custom hooks must run inside React's hook environment. Testing Library's `renderHook` provides that environment and exposes the hook's current result. Assert the returned value or state transition, not the hook's private variables or React internals.
+
+```tsx
+it("trims a task label", () => {
+  const { result } = renderHook(() => useTaskLabel("  Secure task  "));
+
+  expect(result.current).toBe("Secure task");
+});
+```
+
+For hooks that update state, use `act()` around the interaction that triggers the update, then assert the new result. If the hook is only a thin wrapper around a pure function, keep the pure-function tests separate and use the hook test for the React-specific behavior.
+
+### Test behavior, not line count
+
+A useful suite covers meaningful inputs, boundaries, negative cases, and state transitions. High line coverage alone does not prove that a pure function, service, or hook is correct.
+
+## Walkthrough
+
+1. Open lib/task-rules.ts and lib/task-rules.test.ts.
+2. Open lib/services/task-service.ts and identify its reset helper.
+3. Review a hook or create a small hook that exposes one observable result.
+4. Arrange inputs, Act through the public API, and Assert the result.
+5. Run the focused tests and then the full suite.
+
+### Code walkthrough: `lib/services/task-service.ts`
+
+```tsx
+beforeEach(() => {
+  resetTasksForTests();
+});
+
+it("does not return another owner's task", () => {
+  const tasks = listTasks("user-2");
+
+  expect(tasks.every((task) => task.ownerId === "user-2")).toBe(true);
 });
 ```

@@ -2,21 +2,41 @@
 
 ## Intended reasoning
 
-A test passes for the wrong reason or the test runner ignores the file. Fix the test name/configuration/assertion and demonstrate a failing test before the fix.
+A test passes for the wrong reason because it asserts a hard-coded value. The test must call `canEditTask` and assert its returned value so a regression is detected.
 
 ## Suggested approach
 
-1. Reproduce the issue first.
-2. Trace the request or value to the responsible handler/service/component.
-3. Validate external input at the boundary and keep business rules in testable functions.
-4. Return the expected result and a meaningful error for invalid input.
-5. Add a regression test for the exact failure mode.
+1. Run the broken test and observe that it passes.
+2. Arrange the owner and user IDs.
+3. Act by calling `canEditTask(userId, ownerId)`.
+4. Assert that the returned value is `true`.
+5. Run `pnpm exec jest debugging/lesson-14/broken-test.test.ts --testPathIgnorePatterns="^$"`.
+6. Temporarily make `canEditTask` return `false` and confirm the focused test fails.
+
+## Corrected test
+
+```tsx
+import { canEditTask } from "@/lib/task-rules";
+
+describe("canEditTask", () => {
+	it("allows the owner", () => {
+		// Arrange
+		const userId = "user-1";
+		const ownerId = "user-1";
+
+		// Act
+		const result = canEditTask(userId, ownerId);
+
+		// Assert
+		expect(result).toBe(true);
+	});
+});
+```
 
 ## Review checklist
-- Does the fix solve the reported bug rather than hide it?
-- Are status codes and response bodies consistent?
-- Are invalid inputs handled safely?
-- Is sensitive data kept out of client-visible output and logs?
-- Would the test fail if the original bug were reintroduced?
+- Does the test call the function under test?
+- Are Arrange, Act, and Assert easy to identify?
+- Would the test fail if `canEditTask` returned the wrong result?
+- Does the assertion check the function result rather than a hard-coded value?
 
-**Instructor note:** Some lessons are design/code-review exercises rather than a single one-line patch. Accept alternative solutions when learners justify trade-offs and provide evidence.
+**Instructor note:** This is an editor-based exercise. Learners do not need an interactive page; accept equivalent tests when they execute `canEditTask` and demonstrate that a regression fails.

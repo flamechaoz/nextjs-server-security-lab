@@ -1,40 +1,40 @@
-# Debugging Lab 16: Testing React components
+# Debugging Lab 16: Testing user-facing component behavior
 
 **Estimated time:** 15–25 minutes  
-**Mode:** Investigate first; edit only after you can explain the suspected cause.
+**Mode:** Editor-based component testing; edit the test, then run it.
 
 ## Scenario
-A component test relies on an internal CSS class or misses an error state. Rewrite it around user-visible behavior and add the missing assertion.
+A `TaskManager` test uses a CSS selector that is not part of the user-facing contract. Replace it with an accessible role/name query, perform the completion interaction with `userEvent`, and verify the visible completed state.
 
 ## Your mission
 
-1. Run the app with `npm run dev` if the challenge targets a live route.
-2. Reproduce the behavior and write down expected vs. actual output.
-3. Search the repository for the route path, response text, function name, or component involved.
-4. Trace the data flow from request/input to handler to service to response/output.
-5. Fix the bug with the smallest reasonable change.
-6. Run the relevant test(s), then test a negative or boundary case.
+1. Open `debugging/lesson-16/broken-component.test.tsx` and `components/TaskManager.tsx`.
+2. Trace the initial `GET`, the `PATCH`, and the reload response supplied by the mock.
+3. Replace `container.querySelector(".green-button")` with `screen.getByRole("button", { name: "Complete" })`.
+4. Use `userEvent` to click the button.
+5. Assert the visible `Completed` status after the mocked reload.
+6. Run `pnpm exec jest debugging/lesson-16/broken-component.test.tsx --testPathIgnorePatterns="^$"`.
 
 ## Hints (open one at a time)
 
-<details><summary>Hint 1: Find the entry point</summary>
-Start from the URL or UI action. App Router route segments map to folders under `app/`; a Route Handler is exported from `route.ts`.
+<details><summary>Hint 1: Trace the async states</summary>
+The component fetches tasks on mount, sends a PATCH when the user clicks Complete, and fetches the updated list. The fixture already supplies those responses.
 </details>
 
-<details><summary>Hint 2: Trace the value</summary>
-Follow the value through each function call. Check its type, validation, and whether asynchronous values are awaited.
+<details><summary>Hint 2: Query the accessible control</summary>
+The open task's button has the accessible name `Complete`. Styling classes are implementation details.
 </details>
 
-<details><summary>Hint 3: Verify the contract</summary>
-Compare status code, response body, side effects, and failure behavior with the intended contract.
+<details><summary>Hint 3: Assert the result</summary>
+After the PATCH and reload finish, the task's visible status is `Completed` and its button is named `Reopen`.
 </details>
 
 ## Evidence to submit
 - [ ] File(s) changed and why
-- [ ] Reproduction steps and original output
-- [ ] Fix summary
-- [ ] Verification command or request and output
-- [ ] Regression test or explanation of why one is not applicable
+- [ ] Original failing query and why it is brittle
+- [ ] Accessible query and user interaction
+- [ ] Visible result assertion
+- [ ] Verification command and passing output
 
 ## Reference solution
 Only after attempting the lab, compare your approach with `solutions/lesson-16/SOLUTION.md`.

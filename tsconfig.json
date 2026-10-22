@@ -37,7 +37,7 @@
   ],
   "exclude": [
     "node_modules",
-    "debugging",
+    // "debugging",
     "solutions"
   ]
 }

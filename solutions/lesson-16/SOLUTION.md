@@ -2,21 +2,38 @@
 
 ## Intended reasoning
 
-A component test relies on an internal CSS class or misses an error state. Rewrite it around user-visible behavior and add the missing assertion.
+A component test relies on a CSS class instead of the accessible contract. Render the component with controlled network responses, query the button by role and name, perform the user interaction, and assert the visible updated state.
 
 ## Suggested approach
 
-1. Reproduce the issue first.
-2. Trace the request or value to the responsible handler/service/component.
-3. Validate external input at the boundary and keep business rules in testable functions.
-4. Return the expected result and a meaningful error for invalid input.
-5. Add a regression test for the exact failure mode.
+1. Render `TaskManager` with an initial open task.
+2. Mock the initial `GET`, successful `PATCH`, and refreshed `GET` responses.
+3. Query the open task's `Complete` button with `getByRole`.
+4. Click it with `userEvent`.
+5. Wait for and assert the visible `Completed` status.
+6. Confirm the PATCH request body matches the user action.
+
+## Corrected test
+
+```tsx
+const user = userEvent.setup();
+render(<TaskManager />);
+
+await screen.findByText("Write an accessible test");
+await user.click(screen.getByRole("button", { name: "Complete" }));
+
+await waitFor(() =>
+	expect(screen.getByText("Completed")).toBeInTheDocument(),
+);
+```
+
+The complete fixture also mocks the three fetch responses. The important change is replacing the CSS selector with the accessible query and verifying the resulting user-visible state.
 
 ## Review checklist
-- Does the fix solve the reported bug rather than hide it?
-- Are status codes and response bodies consistent?
-- Are invalid inputs handled safely?
-- Is sensitive data kept out of client-visible output and logs?
-- Would the test fail if the original bug were reintroduced?
+- Does the test query by accessible role and name?
+- Does it use `userEvent` for the interaction?
+- Does it wait for asynchronous UI updates?
+- Does it assert visible behavior rather than classes or private state?
+- Does it verify the important network request contract?
 
-**Instructor note:** Some lessons are design/code-review exercises rather than a single one-line patch. Accept alternative solutions when learners justify trade-offs and provide evidence.
+**Instructor note:** This is an editor-based exercise. Accept equivalent tests when they avoid implementation-specific selectors, exercise the user-facing interaction, and assert the resulting UI.
