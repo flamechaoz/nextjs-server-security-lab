@@ -27,7 +27,7 @@ Validate input at the boundary, use safe rendering, avoid unsafe HTML injection,
 
 ### Browser requests have security context
 
-Cookie-authenticated state changes need a CSRF strategy. CORS controls browser access to responses; it is not authentication and does not stop every cross-origin request.
+Cookie-authenticated state changes need a CSRF strategy. A browser can attach a user's cookies to a request initiated by another site, so authentication alone does not prove that the user intended the action. `SameSite` cookies are useful defense in depth, but they do not replace an explicit policy for state-changing requests. CORS controls whether browser code can read a response; it is not authentication and does not stop every cross-origin request.
 
 ## Walkthrough
 
@@ -47,3 +47,43 @@ if (!parsed.success) {
 }
 // Use parameterized database APIs for persistence.
 ```
+
+### Code walkthrough: protect a cookie-authenticated mutation
+
+For a browser-only mutation endpoint, await Next.js's asynchronous `cookies()` API, validate the session, and compare the complete request `Origin` to the configured trusted origin. Reject missing or unexpected origins before performing any state change:
+
+```ts
+import { cookies } from "next/headers";
+import {
+  DEMO_SESSION_COOKIE,
+  getDemoSession,
+} from "@/lib/demo-session";
+
+export async function POST(request: Request) {
+  const trustedOrigin = process.env.APP_ORIGIN;
+  if (!trustedOrigin || request.headers.get("origin") !== trustedOrigin) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get(DEMO_SESSION_COOKIE);
+  const session = getDemoSession(authCookie?.value);
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const formData = await request.formData();
+  const displayName = formData.get("displayName");
+  if (typeof displayName !== "string" || displayName.trim().length === 0) {
+    return Response.json({ error: "Invalid input" }, { status: 400 });
+  }
+  // Perform the authorized state change only after these checks.
+  return Response.json({ ok: true });
+}
+```
+
+Set `APP_ORIGIN` to the application's exact public origin, such as `https://app.example.com` (no trailing slash). This example intentionally rejects requests without an `Origin`; applications that support clients that omit it should choose and test an explicit alternative, such as a synchronizer token. An Origin check does not protect against same-origin script injection, so XSS defenses still matter.
+
+### Additional debugging activity: CSRF on a profile update
+
+The existing challenge covers open redirects. For the additional CSRF activity, open the [CSRF logic playground](/common-web-vulnerabilities/csrf) and inspect `debugging/lesson-12-csrf/broken-handler.ts`. Fix the cookie check that tests a Promise instead of an awaited cookie, then fix the Origin comparison that treats a matching hostname as a matching origin. The endpoint only simulates a profile update.

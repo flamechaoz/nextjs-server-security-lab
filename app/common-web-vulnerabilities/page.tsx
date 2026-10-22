@@ -25,6 +25,16 @@ export default function CommonWebVulnerabilitiesPlaygroundPage() {
       </p>
       <OpenRedirectPlayground />
       <section className="boundary-demo-steps">
+        <h2>Continue with the CSRF logic playground</h2>
+        <p>
+          Diagnose a missing <code>await</code> in the session-cookie guard and
+          an Origin comparison that ignores the port.
+        </p>
+        <Link className="button" href="/common-web-vulnerabilities/csrf">
+          Open CSRF playground →
+        </Link>
+      </section>
+      <section className="boundary-demo-steps">
         <h2>Trace and fix the redirect decision</h2>
         <ol>
           <li>Try <code>/dashboard</code>, <code>https://example.test</code>, and <code>{"//example.test"}</code>.</li>

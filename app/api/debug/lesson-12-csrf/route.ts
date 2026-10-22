@@ -1,0 +1,1 @@
+export { POST } from "@/debugging/lesson-12-csrf/broken-handler";
